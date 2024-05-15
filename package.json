@@ -1,7 +1,7 @@
 {
     "name": "Conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "2.4.0",
+    "version": "2.4.1",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Luuxis/Riptiaz",
