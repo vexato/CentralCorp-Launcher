@@ -17,7 +17,7 @@ export {
     changePanel as changePanel,
     addAccount as addAccount,
     slider as Slider,
-    accountSelect as accountSelect
+    accountSelect as accountSelect,
 }
 
 function changePanel(id) {
@@ -29,17 +29,19 @@ function changePanel(id) {
 
 function addAccount(data) {
     let azauth = config.config.azauth;
+    let timestamp = new Date().getTime();
     let div = document.createElement("div");
     div.classList.add("account");
     div.id = data.uuid;
     div.innerHTML = `
-        <img class="account-image" src="${azauth}/api/skin-api/avatars/face/${data.name}/">
+        <img class="account-image" src="${azauth}/api/skin-api/avatars/face/${data.name}/?t=${timestamp}"> <!-- Ajoute le timestamp à l'URL -->
         <div class="account-name">${data.name}</div>
         <div class="account-uuid">${data.uuid}</div>
         <div class="account-delete"><div class="icon-account-delete icon-account-delete-btn"></div></div>
     `
     document.querySelector('.accounts').appendChild(div);
 }
+
 
 function accountSelect(uuid) {
     let account = document.getElementById(uuid);
@@ -53,5 +55,7 @@ function accountSelect(uuid) {
 
 function headplayer(pseudo) {
     let azauth = config.config.azauth;
-    document.querySelector(".player-head").style.backgroundImage = `url(${azauth}/api/skin-api/avatars/face/${pseudo}/)`;
+    let timestamp = new Date().getTime(); 
+    let skin_url = `${azauth}/api/skin-api/avatars/face/${pseudo}/?t=${timestamp}`;
+    document.querySelector(".player-head").style.backgroundImage = `url(${skin_url})`;
 }

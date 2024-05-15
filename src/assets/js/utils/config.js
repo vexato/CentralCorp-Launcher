@@ -7,8 +7,8 @@ const pkg = require('../package.json');
 const fetch = require("node-fetch")
 const convert = require("xml-js")
 let settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings
-
-let config = `${settings_url}/utils/api`;
+let settings_urI = new URL(settings_url)
+let config = `${settings_urI}/utils/api`;
 
 
 
@@ -24,7 +24,8 @@ class Config {
     }
     async GetNews() {
         this.config = await this.GetConfig().then(res => res);
-        let news = `${this.config.azauth}/api/rss`
+        let base_news = new URL(this.config.azauth)
+        let news = new URL('/api/rss', this.config.azauth)
         let rss = await fetch(news).then(res => res.text());
         let rssparse = JSON.parse(convert.xml2json(rss, { compact: true }));
         let data = [];
@@ -55,8 +56,8 @@ class Config {
             data.push({
                 title: "Aucun article disponible",
                 content: "Aucun article n'a été trouvé.",
-                author: "News",
-                publish_date: "2023"
+                author: "",
+                publish_date: "2024"
             });
         }
     

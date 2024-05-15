@@ -21,7 +21,51 @@ class Settings {
         this.initRam();
         this.initLauncherSettings();
     }
+    async refreshData() {
 
+        document.querySelector('.player-role').innerHTML = '';
+        document.querySelector('.player-monnaie').innerHTML = '';
+    
+        await this.bkgrole();
+    }
+    
+    async bkgrole() {
+        const uuid = (await this.database.get('1234', 'accounts-selected')).value;
+        const account = (await this.database.get(uuid.selected, 'accounts')).value;
+
+        if (this.config.role === true && account.user_info.role) {
+            const blockRole = document.createElement("div");
+            blockRole.innerHTML = `<div>Grade: ${account.user_info.role.name}</div>`;
+            document.querySelector('.player-role').appendChild(blockRole);
+        } else {
+            document.querySelector(".player-role").style.display = "none";
+        }
+
+        if (this.config.money === true) {
+            const blockMonnaie = document.createElement("div");
+            blockMonnaie.innerHTML = `<div>${account.user_info.monnaie} pts</div>`;
+            document.querySelector('.player-monnaie').appendChild(blockMonnaie);
+        } else {
+            document.querySelector(".player-monnaie").style.display = "none";
+        }
+        if (this.config.whitelist_activate === true && !this.config.whitelist.includes(account.name)) {
+            document.querySelector(".play-btn").style.backgroundColor = "#696969";
+            document.querySelector(".play-btn").style.pointerEvents = "none";
+            document.querySelector(".play-btn").style.boxShadow = "none";
+            document.querySelector(".play-btn").textContent = "Indisponible";
+        } else {
+            document.querySelector(".play-btn").style.backgroundColor = "#00bd7a";
+            document.querySelector(".play-btn").style.pointerEvents = "auto";
+            document.querySelector(".play-btn").style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.2)";
+            document.querySelector(".play-btn").textContent = "Jouer";
+        }
+
+        const roleData = this.config.role_data;
+        const roleBackground = roleData[`role${account.user_info.role.name}`]?.background;
+        if (roleBackground) {
+            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${roleBackground}) black no-repeat center center scroll`;
+        }
+    }
     initAccount() {
         document.querySelector('.accounts').addEventListener('click', async(e) => {
             let uuid = e.target.id;
@@ -233,6 +277,7 @@ class Settings {
         document.querySelector('.save-tabs-btn').addEventListener('click', () => {
             document.querySelector('.default-tab-btn').click();
             changePanel("home");
+            this.refreshData();
         })
     }
 
