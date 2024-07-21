@@ -7,7 +7,7 @@
 
 // libs 
 const fs = require('fs');
-const { Microsoft, Mojang, AZauth } = require('minecraft-java-core');
+const { Microsoft, Mojang, AZauth } = require('minecraft-java-core-azbetter');
 const pkg = require('../package.json');
 const { ipcRenderer } = require('electron');
 const DiscordRPC = require('discord-rpc');
@@ -175,9 +175,10 @@ class Launcher {
     }
     
     async bkgrole() {
+        let ram = (await this.database.get('1234', 'ram')).value;
         const uuid = (await this.database.get('1234', 'accounts-selected')).value;
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
-
+        
         if (this.config.role === true && account.user_info.role) {
             const blockRole = document.createElement("div");
             blockRole.innerHTML = `<div>Grade: ${account.user_info.role.name}</div>`;

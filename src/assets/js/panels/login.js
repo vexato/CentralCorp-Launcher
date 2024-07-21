@@ -1,5 +1,5 @@
 import { database, changePanel, addAccount, accountSelect } from '../utils.js';
-const { AZauth } = require('minecraft-java-core');
+const { AZauth } = require('minecraft-java-core-azbetter');
 const { ipcRenderer } = require('electron');
 const pkg = require('../package.json');
 
