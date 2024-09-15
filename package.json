@@ -4,10 +4,17 @@
     "version": "2.0.7",
     "description": "Launcher Mincraft pour le serveur Selvania",
     "main": "src/app.js",
+<<<<<<< Updated upstream
     "author": {
         "name": "luuxis, Inc.",
         "email": "contact@luuxis.fr",
         "url": "https://github.com/luuxis"
+=======
+    "author": "Luuxis/Riptiaz",
+    "settings": "https://dev.conflictura.eu",
+    "engines": {
+        "node": "16.x.x"
+>>>>>>> Stashed changes
     },
     "url": "http://launcher.luuxis.fr",
     "scripts": {

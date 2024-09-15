@@ -6,11 +6,18 @@
 import { changePanel, accountSelect, database, Slider, config, setStatus, popup, appdata, setBackground } from '../utils.js'
 const { ipcRenderer } = require('electron');
 const os = require('os');
+const fetch = require('node-fetch');
+const path = require('path')
+const fs = require('fs')
+const pkg = require('../package.json');
+const { ipcRenderer, shell } = require('electron');
+const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings
 
 class Settings {
     static id = "settings";
     async init(config) {
         this.config = config;
+<<<<<<< Updated upstream
         this.db = new database();
         this.navBTN()
         this.accounts()
@@ -18,6 +25,16 @@ class Settings {
         this.javaPath()
         this.resolution()
         this.launcher()
+=======
+        this.database = await new database().init();
+        this.initSettingsDefault();
+        this.initTab();
+        this.initAccount();
+        this.initRam();
+        this.initLauncherSettings();
+        this.updateModsConfig();
+        this.initOptionalMods();
+>>>>>>> Stashed changes
     }
 
     navBTN() {
@@ -44,6 +61,168 @@ class Settings {
                 document.querySelector(`#${id}-tab`).classList.add('active-container-settings');
             }
         })
+    }
+    async updateModsConfig() {
+        
+        const modsDir = path.join(`${dataDirectory}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}`, 'mods');
+        const launcherConfigDir = path.join(`${dataDirectory}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}`, 'launcher_config');
+        const modsConfigFile = path.join(launcherConfigDir, 'mods_config.json');
+    
+        const response = await fetch(`${settings_url}/utils/mods`);
+        const apiMods = await response.json();
+        const apiModsSet = new Set(apiMods.optionalMods);
+    
+        let localModsConfig;
+        try {
+            localModsConfig = JSON.parse(fs.readFileSync(modsConfigFile));
+        } catch (error) {
+            await this.createModsConfig(modsConfigFile);
+            localModsConfig = JSON.parse(fs.readFileSync(modsConfigFile));
+        }
+    
+        for (const localMod in localModsConfig) {
+            if (!apiModsSet.has(localMod)) {
+                if (!localModsConfig[localMod]) {
+                    const modFiles = fs.readdirSync(modsDir).filter(file => file.startsWith(localMod) && file.endsWith('.jar-disable'));
+                    if (modFiles.length > 0) {
+                        const modFile = modFiles[0];
+                        const modFilePath = path.join(modsDir, modFile);
+                        const newModFilePath = modFilePath.replace('.jar-disable', '.jar');
+                        fs.renameSync(modFilePath, newModFilePath);
+                    }
+                }
+                delete localModsConfig[localMod];
+            }
+        }
+    
+        apiMods.optionalMods.forEach(apiMod => {
+            if (!(apiMod in localModsConfig)) {
+                localModsConfig[apiMod] = true;
+            }
+        });
+    
+        fs.writeFileSync(modsConfigFile, JSON.stringify(localModsConfig, null, 2));
+    }
+    async initOptionalMods() {
+        const modElement = document.createElement('div');
+        const modsDir = path.join(`${dataDirectory}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}`, 'mods');
+        const launcherConfigDir = path.join(`${dataDirectory}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}`, 'launcher_config');
+        const modsConfigFile = path.join(launcherConfigDir, 'mods_config.json');
+        const modsListElement = document.getElementById('mods-list');
+    
+        if (!fs.existsSync(launcherConfigDir)) {
+            fs.mkdirSync(launcherConfigDir, { recursive: true });
+        }
+    
+        if (!fs.existsSync(modsDir) || fs.readdirSync(modsDir).length === 0) {
+            modElement.innerHTML = `
+            <div class="mods-container-empty">
+              <h2>⚠️ Les mods optionnels n'ont pas encore étés téléchargés. Veuillez lancer une première fois le jeu pour pouvoir les configurer. ⚠️<h2>
+            </div>`;
+            modsListElement.appendChild(modElement);
+    
+            if (!fs.existsSync(modsConfigFile)) {
+                await this.createModsConfig(modsConfigFile);
+            }
+        } else {
+            await this.displayMods(modsConfigFile, modsDir, modsListElement);
+        }
+    }
+    
+
+    async createModsConfig(modsConfigFile) {
+        const response = await fetch(`${settings_url}/utils/mods`);
+        const data = await response.json();
+        const modsConfig = {};
+    
+        data.optionalMods.forEach(mod => {
+            modsConfig[mod] = true;
+        });
+    
+        fs.writeFileSync(modsConfigFile, JSON.stringify(modsConfig, null, 2));
+    }    
+
+    async displayMods(modsConfigFile, modsDir, modsListElement) {
+        let modsConfig;
+    
+        try {
+            modsConfig = JSON.parse(fs.readFileSync(modsConfigFile));
+        } catch (error) {
+            await this.createModsConfig(modsConfigFile);
+            modsConfig = JSON.parse(fs.readFileSync(modsConfigFile));
+        }
+    
+        const response = await fetch(`${settings_url}/utils/mods`);
+        const data = await response.json();
+    
+        if (!data.optionalMods || !data.mods) {
+            console.error('La réponse API ne contient pas "optionalMods" ou "mods".');
+            return;
+        }
+    
+        data.optionalMods.forEach(mod => {
+            const modElement = document.createElement('div');
+            const modInfo = data.mods[mod];
+            if (!modInfo) {
+                console.error(`Les informations pour le mod "${mod}" sont manquantes dans "mods".`);
+                modElement.innerHTML = `
+                <div class="mods-container">
+                  <h2>Les informations pour le mod ${mod} n'ont pas étés mises par les administrateurs.<h2>
+                   <div class="switch">
+                      <input type="checkbox" id="${mod}" name="mod" value="${mod}" ${modsConfig[mod] ? 'checked' : ''}>
+                      <label class="switch-label" for="${mod}"></label>
+                  </div>
+                </div>`;
+                return;
+            }
+        
+            const modName = modInfo.name;
+            const modDescription = modInfo.description;
+            const modLink = modInfo.icon;
+            const modRecommanded = modInfo.recommanded;
+        
+            modElement.innerHTML = `
+                <div class="mods-container">
+                  <img src="${modLink}" class="mods-icon" alt="${modName} logo">
+                  <div class="mods-container-text">
+                    <div class="mods-container-name">                    
+                        <h2>${modName}</h2>
+                        <div class="mods-recommanded" style="display: none;">Recommandé</div>
+                    </div>
+                    <div class="mod-description">${modDescription}</div>
+                  </div>
+                  <div class="switch">
+                    <input type="checkbox" id="${mod}" name="mod" value="${mod}" ${modsConfig[mod] ? 'checked' : ''}>
+                    <label class="switch-label" for="${mod}"></label>
+                  </div>
+                </div>
+            `;
+        
+            if (modRecommanded) {
+                modElement.querySelector('.mods-recommanded').style.display = 'block';
+            }
+        
+            modElement.querySelector('input').addEventListener('change', (e) => {
+                this.toggleMod(mod, e.target.checked, modsConfig, modsDir, modsConfigFile);
+            });
+        
+            modsListElement.appendChild(modElement);
+        });        
+    }        
+
+    async toggleMod(mod, enabled, modsConfig, modsDir, modsConfigFile) {
+        const modFiles = fs.readdirSync(modsDir).filter(file => file.startsWith(mod) && (file.endsWith('.jar') || file.endsWith('.jar-disable')));
+    
+        if (modFiles.length > 0) {
+            const modFile = modFiles[0];
+            const modFilePath = path.join(modsDir, modFile);
+            const newModFilePath = enabled ? modFilePath.replace('.jar-disable', '.jar') : modFilePath.replace('.jar', '.jar-disable');
+    
+            fs.renameSync(modFilePath, newModFilePath);
+    
+            modsConfig[mod] = enabled;
+            fs.writeFileSync(modsConfigFile, JSON.stringify(modsConfig, null, 2));
+        }
     }
 
     accounts() {

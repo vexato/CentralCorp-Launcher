@@ -376,6 +376,7 @@
     cursor: pointer;
 }
 
+<<<<<<< Updated upstream
 .theme-btn-clair {
     background: var(--light-color);
     color: var(--dark-color);
@@ -410,4 +411,87 @@
 
 .active-close {
     border: 4px solid var(--element-color);
+=======
+.checkbox-settings+label {
+    display: inline-block;
+    margin-right: 8px;
+}
+.optional-mod-option {
+    margin-bottom: 10px;
+}
+
+.mod-description {
+    margin-left: 10px;
+}
+.mods-list {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+}
+
+.mods-info {
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 20px;
+    background: #292929;
+}
+
+.mods-container-empty,
+.mods-container {
+    margin-top: 15px;
+    font-size: 15px;
+    color: #fff;
+    background-color: #1f1f1f;
+    border-radius: 18px;
+    display: flex;
+    gap: 5%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; 
+    padding: 15px;
+    font: normal normal normal 16px/25px Poppins;
+    color: #F1F1F1;
+    box-sizing: border-box;
+}
+
+.mods-container-empty {
+    text-align: center;
+}
+
+.mods-container-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 1; 
+    overflow-wrap: break-word; 
+}
+
+.mods-container-name {
+    width: 100%; 
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.mods-recommanded {
+    background-color: #150c8f;
+    border-radius: 10px;
+    padding: 5px;
+    font: normal normal normal 16px/25px Poppins;
+    display: inline-block;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mods-icon {
+    width: 128px;
+    height: 128px;
+    border-radius: 10px;
+    flex-shrink: 0; 
+}
+
+.mod-description {
+    margin-left: 10px;
+    overflow-wrap: break-word; 
+>>>>>>> Stashed changes
 }
