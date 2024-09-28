@@ -100,11 +100,11 @@ class Launcher {
     }
 
     async getaccounts() {
-        let azauth = this.config.azauth
+        let azauth = this.config.azauth;
         const AZAuth = new AZauth(azauth);
         let accounts = await this.database.getAll('accounts');
         let selectaccount = (await this.database.get('1234', 'accounts-selected'))?.value?.selected;
-
+    
         if (!accounts.length) {
             changePanel("login");
         } else {
@@ -115,14 +115,14 @@ class Launcher {
                     console.log(refresh);
                     console.log(`Initializing Mojang account ${account.name}...`);
                     let refresh_accounts;
-
+    
                     if (refresh.error) {
                         this.database.delete(account.uuid, 'accounts');
-                        if (account.uuid === selectaccount) this.database.update({ uuid: "1234" }, 'accounts-selected')
+                        if (account.uuid === selectaccount) this.database.update({ uuid: "1234" }, 'accounts-selected');
                         console.error(`[Account] ${account.uuid}: ${refresh.errorMessage}`);
                         continue;
                     }
-
+    
                     refresh_accounts = {
                         access_token: refresh.access_token,
                         client_token: refresh.uuid,
@@ -136,45 +136,63 @@ class Launcher {
                         user_info: {
                             role: refresh.user_info.role,
                             monnaie: refresh.user_info.money,
+                            verified: refresh.user_info.verified,
                         },
+                    };
+                    if (this.config.email_verified === true && account.user_info.verified === false) {
+                        this.database.delete(account.uuid, 'accounts');
+                        if (account.uuid === selectaccount) this.database.update({ uuid: "1234" }, 'accounts-selected');
                     }
-
                     this.database.update(refresh_accounts, 'accounts');
                     addAccount(refresh_accounts);
-                    if (account.uuid === selectaccount) accountSelect(refresh.uuid)
+                    if (account.uuid === selectaccount) accountSelect(refresh.uuid);
                 } else {
                     this.database.delete(account.uuid, 'accounts');
-                    if (account.uuid === selectaccount) this.database.update({ uuid: "1234" }, 'accounts-selected')
+                    if (account.uuid === selectaccount) this.database.update({ uuid: "1234" }, 'accounts-selected');
                 }
             }
             if (!(await this.database.get('1234', 'accounts-selected')).value.selected) {
-                let uuid = (await this.database.getAll('accounts'))[0]?.value?.uuid
+                let uuid = (await this.database.getAll('accounts'))[0]?.value?.uuid;
                 if (uuid) {
-                    this.database.update({ uuid: "1234", selected: uuid }, 'accounts-selected')
-                    accountSelect(uuid)
+                    this.database.update({ uuid: "1234", selected: uuid }, 'accounts-selected');
+                    accountSelect(uuid);
                 }
             }
-
+    
             if ((await this.database.getAll('accounts')).length == 0) {
                 changePanel("login");
                 document.querySelector(".preload-content").style.display = "none";
-                return
+                return;
             }
             changePanel("home");
             this.refreshData();
-            
         }
         document.querySelector(".preload-content").style.display = "none";
     }
+    
     async refreshData() {
 
         document.querySelector('.player-role').innerHTML = '';
         document.querySelector('.player-monnaie').innerHTML = '';
         
-        await this.bkgrole();
+        await this.initOthers();
+        await this.initPreviewSkin();
     }
+    async initPreviewSkin() {
+        console.log('initPreviewSkin called');
+        const websiteUrl = this.config.azauth;
+        let uuid = (await this.database.get('1234', 'accounts-selected')).value;
+        let account = (await this.database.get(uuid.selected, 'accounts')).value;
     
-    async bkgrole() {
+        let title = document.querySelector('.player-skin-title');
+        title.innerHTML = `Skin de ${account.name}`;
+    
+        const skin = document.querySelector('.skin-renderer-settings');
+        const cacheBuster = new Date().getTime();
+        const url = `${websiteUrl}/skin3d/3d-api/skin-api/${account.name}?_=${cacheBuster}`;
+        skin.src = url;
+    }
+    async initOthers() {
         let ram = (await this.database.get('1234', 'ram')).value;
         const uuid = (await this.database.get('1234', 'accounts-selected')).value;
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
@@ -194,13 +212,14 @@ class Launcher {
         } else {
             document.querySelector(".player-monnaie").style.display = "none";
         }
-
-        if (this.config.whitelist_activate === true && !this.config.whitelist.includes(account.name)) {
+        if (this.config.whitelist_activate === true && 
+            (!this.config.whitelist.includes(account.name) &&
+             !this.config.whitelist_roles.includes(account.user_info.role.name))) {
             document.querySelector(".play-btn").style.backgroundColor = "#696969";
             document.querySelector(".play-btn").style.pointerEvents = "none";
             document.querySelector(".play-btn").style.boxShadow = "none";
             document.querySelector(".play-btn").textContent = "Indisponible";
-        }
+             }
         const urlPattern = /^(http:\/\/|https:\/\/)/;
         if (account.user_info.role.name === this.config.role_data.role1.name) {
             if (urlPattern.test(this.config.role_data.role1.background) === true) {

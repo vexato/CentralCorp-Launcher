@@ -1,11 +1,11 @@
 {
     "name": "Conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "2.4.2",
+    "version": "3.0.0",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
-    "author": "Luuxis/Riptiaz",
-    "settings": "https://launcher.conflictura.eu",
+    "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
+    "settings": "https://dev.conflictura.eu",
     "engines": {
         "node": "16.x.x"
     },

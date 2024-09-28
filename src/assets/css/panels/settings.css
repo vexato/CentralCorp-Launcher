@@ -1,7 +1,6 @@
 body {
     background-image: url("https://cdn.discordapp.com/attachments/812913906770772028/1004732862500704356/azakiitest.png");
 }
-
 .tabs-settings-btn {
     position: fixed;
     bottom: 0;
@@ -10,47 +9,46 @@ body {
     flex-direction: column;
     background: #00000080;
     display: flex;
-    justify-content: center; /* Centrer verticalement */
-    align-items: center; /* Centrer horizontalement */
+    justify-content: center;
+    align-items: center;
 }
+
 .tab-btn-css {
-    width: 70px;
-    height: 70px;
+    width: 150px;
+    height: 50px;
     margin: 10px 0;
     background: #00bd7a;
-    border: 4px solid #00bd7a;
-    text-align: center; /* Centrer le contenu */
+    border: none;
+    text-align: center;
     cursor: pointer;
-    box-shadow: 0 0 5px #bd0000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     outline: none;
-    border-radius: 50%; /* Rendre les boutons ronds */
+    border-radius: 25px;
     display: flex;
-    justify-content: center; /* Centrer horizontalement le contenu */
-    align-items: center; /* Centrer verticalement le contenu */
+    align-items: center;
+    padding: 0 10px;
+    transition: background 0.3s, transform 0.2s;
 }
 
 .tab-btn-css:hover {
     background: #006e47;
-    box-shadow: 0 0 5px #006e47;
-    border: 4px solid #006e47;
+    transform: scale(1.05);
 }
 
 .active-tab-btn {
     background: #006e47;
-    border: 4px solid #FFFFFF;
-    box-shadow: 0 0 5px #ffffff;
+    box-shadow: 0 0 10px #ffffff;
 }
 
 .active-tab-btn:hover {
     background: #006e47;
-    border: 4px solid #ffffff;
-    box-shadow: 0 0 5px #ffffff;
+    transform: scale(1.05);
 }
 
 .tabs-settings-content {
     position: absolute;
-    top: 47%;
-    left: 62%;
+    top: 45%;
+    left: 53%;
     transform: translate(-50%, -50%);
     width: 73%;
     height: 80%;
@@ -62,7 +60,13 @@ body {
 }
 
 .tab-btn-css i {
-    font-size: 40px;
+    font-size: 24px;
+    margin-right: 5px;
+}
+
+.tab-btn-css span {
+    font-size: 14px;
+    color: #000000;
 }
 
 .active-tab-content {
@@ -72,6 +76,7 @@ body {
 
 .save-tabs-btn {
     margin-top: auto;
+    width: 150px;
 }
 
 .information {
@@ -82,17 +87,18 @@ body {
 
 .title-settings {
     text-align: center;
-    font: normal normal bold 20px/25px Apocalyps;
+    font: bold 20px/25px 'Roboto Mono', sans-serif; /* Utilisez Montserrat */
     color: #F1F1F1;
     margin: 2% 0;
 }
+
 
 .center-align {
     text-align: center;
 }
 
 .settings-content-scroll {
-    overflow: auto;
+    overflow: hidden; /* Pas de défilement pour cette section */
     width: 100%;
     height: 100%;
 }
@@ -109,14 +115,13 @@ body {
     width: 100%;
 }
 
-
 /*******************************************************************************
  *                                                                             *
- * account sttings                                                             *
+ * account settings                                                             *
  *                                                                             *
  ******************************************************************************/
 
- .add-account {
+.add-account {
     width: 80%;
     height: 10%;
     border: none;
@@ -213,7 +218,6 @@ body {
     border: 4px solid #ffffff;
     box-shadow: 0 0 5px #ffffff;
 }
-
 
 /*******************************************************************************
  *                                                                             *
@@ -330,6 +334,7 @@ body {
 
 .path-button:hover {
     background-color: #1f1f1f;
+    transform: scale(1.05);
 }
 
 .path-button-reset {
@@ -346,6 +351,7 @@ body {
 
 .path-button-reset:hover {
     background-color: #1f1f1f;
+    transform: scale(1.05);
 }
 
 .path-file {
@@ -367,7 +373,6 @@ body {
     border: none;
     outline: none;
 }
-
 
 /*******************************************************************************
  *                                                                             *
@@ -397,7 +402,6 @@ body {
     width: 100px;
     color: #F1F1F1F1;
 }
-
 .size-cross {
     margin: 10px;
 }
@@ -444,7 +448,6 @@ body {
     appearance: none;
 }
 
-
 /*******************************************************************************
  *                                                                             *
  * launcher settings                                                           *
@@ -487,4 +490,125 @@ body {
 .checkbox-settings+label {
     display: inline-block;
     margin-right: 8px;
+}
+
+.optional-mod-option {
+    margin-bottom: 10px;
+}
+
+.mod-description {
+    margin-left: 10px;
+}
+
+.mods-info {
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 20px;
+    background: #292929;
+}
+
+.mods-list {
+    max-height: 300px; 
+    overflow: auto;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #1f1f1f;
+    position: relative; 
+}
+.mods-list::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+
+.mods-container-empty,
+.mods-container {
+    margin-top: 15px;
+    font-size: 15px;
+    color: #fff;
+    background-color: #1f1f1f;
+    border-radius: 18px;
+    display: flex;
+    gap: 5%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between; 
+    padding: 15px;
+    font: normal normal normal 16px/25px Poppins;
+    color: #F1F1F1;
+    box-sizing: border-box;
+}
+
+.mods-container-empty {
+    text-align: center;
+}
+
+.mods-container-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 1; 
+    overflow-wrap: break-word; 
+}
+
+.mods-container-name {
+    width: 100%; 
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.mods-recommanded {
+    background-color: #150c8f;
+    border-radius: 10px;
+    padding: 5px;
+    font: normal normal normal 16px/25px Poppins;
+    display: inline-block;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mods-icon {
+    width: 128px;
+    height: 128px;
+    border-radius: 10px;
+    flex-shrink: 0; 
+}
+
+.mod-description {
+    margin-left: 10px;
+    overflow-wrap: break-word; 
+}
+.skin-container-settings {
+    position: flex;
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+}
+.skin-renderer-settings {
+    background-color: #1f1f1f;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+.upload-skin-btn {
+    width: 300px;
+    height: 60px;
+    border: none;
+    border-radius: 30px;
+    background: #00bd7a;
+    color: #000000;
+    font: normal normal bold 20px/25px Poppins;
+    cursor: pointer;
+    box-shadow: 0 0 5px #006e47;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.upload-skin-btn:hover {
+    background: #006e47;
+    box-shadow: 0 0 10px #006e47;
+    transform: scale(1.05);
 }

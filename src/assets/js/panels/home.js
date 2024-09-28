@@ -8,7 +8,7 @@
 import { logger, database, changePanel} from '../utils.js';
 
 const { Launch, Status } = require('minecraft-java-core-azbetter');
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, shell } = require('electron');
 const launch = new Launch();
 const pkg = require('../package.json');
 
@@ -24,6 +24,8 @@ class Home {
         this.initLaunch();
         this.initStatusServer();
         this.initBtn();
+        this.initVideo();
+        this.initAdvert();
     }
 
     async initNews() {
@@ -83,23 +85,6 @@ class Home {
                     </div>
                 </div>`
             // news.appendChild(blockNews);
-        }
-        let title_changelog = document.createElement("div");
-        title_changelog.innerHTML = `
-        <div>${this.config.changelog_version}</div>
-        `
-        document.querySelector('.title-change').appendChild(title_changelog);
-        if(!this.config.changelog_version) {
-            document.querySelector(".title-change").style.display = "none";
-        }
-
-        let bbWrapperChange = document.createElement("div");
-        bbWrapperChange.innerHTML = `
-        <div>${this.config.changelog_new}</div>
-        `
-        document.querySelector('.bbWrapperChange').appendChild(bbWrapperChange);
-        if(!this.config.changelog_new) {
-            document.querySelector(".bbWrapperChange").style.display = "none";
         }
         let serverimg = document.querySelector('.server-img')
         serverimg.setAttribute("src", `${this.config.server_img}`)
@@ -237,7 +222,61 @@ class Home {
             serverMs.innerHTML = `<span class="red">Hors ligne</span>`;
         }
     }
-
+    async initVideo() {
+        const videoContainer = document.querySelector('.ytb');
+        
+        if (!this.config.video_activate) {
+            videoContainer.style.display = 'none';
+            return;
+        }
+    
+        const youtubeVideoId = this.config.video_url;
+        const youtubeThumbnailUrl = `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`;
+        const videoThumbnail = videoContainer.querySelector('.youtube-thumbnail');
+        const thumbnailImg = videoThumbnail.querySelector('.thumbnail-img');
+        const playButton = videoThumbnail.querySelector('.ytb-play-btn');
+    
+        const videoCredits = document.querySelector('.video-credits');
+        const btn = videoContainer.querySelector('.ytb-btn');
+    
+        btn.addEventListener('click', () => {
+            shell.openExternal(`https://youtube.com/watch?v=${youtubeVideoId}`);
+        });
+    
+        if (thumbnailImg && playButton) {
+            thumbnailImg.src = youtubeThumbnailUrl;
+    
+            videoThumbnail.addEventListener('click', () => {
+                videoThumbnail.innerHTML = `<iframe width="500" height="290" src="https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+            });
+        }
+    }
+    async initAdvert() {
+        const advertBanner = document.querySelector('.advert-banner');
+        
+        if (this.config.alert_activate) {
+            let message = this.config.alert_msg;
+    
+            const firstParagraph = message.split('</p>')[0] + '</p>';
+    
+            const scrollingText = document.createElement('div');
+            scrollingText.classList.add('scrolling-text');
+    
+            scrollingText.innerHTML = `${firstParagraph}`;
+    
+            advertBanner.innerHTML = '';
+            advertBanner.appendChild(scrollingText);
+            if (this.config.alert_scroll) {
+                scrollingText.classList.remove('no-scroll');
+            } else {
+                scrollingText.classList.add('no-scroll');
+            }
+    
+            advertBanner.style.display = 'block';
+        } else {
+            advertBanner.style.display = 'none';
+        }
+    }
     initBtn() {
         let settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings
         document.querySelector('.settings-btn').addEventListener('click', () => {
