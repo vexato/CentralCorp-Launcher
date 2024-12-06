@@ -5,9 +5,9 @@
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
-    "settings": "https://dev.conflictura.eu",
+    "settings": "http://localhost/panel",
     "engines": {
-        "node": "16.x.x"
+        "node": "20.x.x"
     },
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
