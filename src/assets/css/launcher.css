@@ -13,7 +13,7 @@ body {
     user-select: none;
     background: linear-gradient(#00000066, #00000066),
     url("../images/background/light.jpg") black no-repeat center center;
-    background-size: cover; /* L'image remplit l'écran */
+    background-size: cover; /* Ajout de cette propriété */
 }
 
 img {
