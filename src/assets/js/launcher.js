@@ -101,8 +101,7 @@ class Launcher {
 
     async getAccounts() {
         const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
-        const azauth = pkg.env === 'azuriom' ? baseUrl : this.config.azauth.endsWith('/') ? this.config.azauth : `${this.config.azauth}/`;
-        const AZAuth = new AZauth(azauth);
+        const AZAuth = new AZauth(this.getAzAuthUrl());
         const accounts = await this.database.getAll('accounts');
         const selectedAccount = (await this.database.get('1234', 'accounts-selected'))?.value?.selected;
 
@@ -183,12 +182,12 @@ class Launcher {
     async initPreviewSkin() {
         console.log('initPreviewSkin called');
         const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
-        const websiteUrl = pkg.env === 'azuriom' ? baseUrl : this.config.azauth.endsWith('/') ? this.config.azauth : `${this.config.azauth}/`;
+        const azauth = this.getAzAuthUrl();
         const uuid = (await this.database.get('1234', 'accounts-selected')).value;
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
 
         document.querySelector('.player-skin-title').innerHTML = `Skin de ${account.name}`;
-        document.querySelector('.skin-renderer-settings').src = `${websiteUrl}skin3d/3d-api/skin-api/${account.name}`;
+        document.querySelector('.skin-renderer-settings').src = `${azauth}skin3d/3d-api/skin-api/${account.name}`;
     }
 
     async initOthers() {
@@ -253,6 +252,14 @@ class Launcher {
                 }
             }
         }
+    }
+    getAzAuthUrl() {
+        const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
+        return pkg.env === 'azuriom' 
+            ? baseUrl 
+            : this.config.azauth.endsWith('/') 
+            ? this.config.azauth 
+            : `${this.config.azauth}/`;
     }
 }
 

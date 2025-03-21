@@ -48,7 +48,7 @@ class Settings {
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
         const pseudo = account.name;
         const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
-        const azauth = this.getAzAuthUrl(baseUrl);
+        const azauth = this.getAzAuthUrl();
         const timestamp = new Date().getTime();
         const skin_url = `${azauth}api/skin-api/avatars/face/${pseudo}/?t=${timestamp}`;
         document.querySelector(".player-head").style.backgroundImage = `url(${skin_url})`;
@@ -58,7 +58,7 @@ class Settings {
         const uuid = (await this.database.get('1234', 'accounts-selected')).value;
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
         const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
-        const azauth = this.getAzAuthUrl(baseUrl);
+        const azauth = this.getAzAuthUrl();
         const timestamp = new Date().getTime();
 
         const accountDiv = document.getElementById(account.uuid);
@@ -342,21 +342,24 @@ class Settings {
                 <div class="mods-container">
                   <h2>Les informations pour le mod ${mod} n'ont pas étés mises par les administrateurs.<h2>
                    <div class="switch">
-                      <input type="checkbox" id="${mod}" name="mod" value="${mod}" ${modsConfig[mod] ? 'checked' : ''}>
-                      <label class="switch-label" for="${mod}"></label>
+                      <label class="switch-label">
+                        <input type="checkbox" id="${mod}" name="mod" value="${mod}" ${modsConfig[mod] ? 'checked' : ''}>
+                        <span class="slider round"></span>
+                      </label>
                   </div>
-                </div>`;
+                </div>
+                <hr>`;
                 return;
             }
 
             const modName = modInfo.name;
-            const modDescription = modInfo.description;
+            const modDescription = modInfo.description || "Aucune description pour ce mod";
             const modLink = modInfo.icon;
             const modRecommanded = modInfo.recommanded;
 
             modElement.innerHTML = `
                 <div class="mods-container">
-                  <img src="${modLink}" class="mods-icon" alt="${modName} logo">
+                  ${modLink ? `<img src="${modLink}" class="mods-icon" alt="${modName} logo">` : ''}
                   <div class="mods-container-text">
                     <div class="mods-container-name">                    
                         <h2>${modName}</h2>
@@ -365,10 +368,13 @@ class Settings {
                     <div class="mod-description">${modDescription}</div>
                   </div>
                   <div class="switch">
-                    <input type="checkbox" id="${mod}" name="mod" value="${mod}" ${modsConfig[mod] ? 'checked' : ''}>
-                    <label class="switch-label" for="${mod}"></label>
+                    <label class="switch-label">
+                      <input type="checkbox" id="${mod}" name="mod" value="${mod}" ${modsConfig[mod] ? 'checked' : ''}>
+                      <span class="slider round"></span>
+                    </label>
                   </div>
                 </div>
+                <hr>
             `;
 
             if (modRecommanded) {
@@ -427,8 +433,7 @@ class Settings {
             console.error('No file provided');
             return;
         }
-        const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
-        const websiteUrl = pkg.env === 'azuriom' ? `${baseUrl}` : this.config.azauth;  
+        const azauth = this.getAzAuthUrl();
         let uuid = (await this.database.get('1234', 'accounts-selected')).value;
         let account = (await this.database.get(uuid.selected, 'accounts')).value;
         const access_token = account.access_token;
@@ -437,7 +442,7 @@ class Settings {
         formData.append('skin', file);
         const xhr = new XMLHttpRequest();
 
-        xhr.open('POST', `${websiteUrl}api/skin-api/skins/update`, true);
+        xhr.open('POST', `${azauth}api/skin-api/skins/update`, true);
 
         xhr.onload = async () => {
             console.log(`XHR Response: ${xhr.response}`);
@@ -458,12 +463,7 @@ class Settings {
 
     async initPreviewSkin() {
         console.log('initPreviewSkin called');
-        const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
-        const websiteUrl = pkg.env === 'azuriom' 
-        ? baseUrl 
-        : this.config.azauth.endsWith('/') 
-        ? this.config.azauth 
-        : `${this.config.azauth}/`;
+        const azauth = this.getAzAuthUrl();
         let uuid = (await this.database.get('1234', 'accounts-selected')).value;
         let account = (await this.database.get(uuid.selected, 'accounts')).value;
 
@@ -472,7 +472,7 @@ class Settings {
 
         const skin = document.querySelector('.skin-renderer-settings');
         const cacheBuster = new Date().getTime();
-        const url = `${websiteUrl}skin3d/3d-api/skin-api/${account.name}`;
+        const url = `${azauth}skin3d/3d-api/skin-api/${account.name}`;
         skin.src = url;
     }
 
@@ -603,7 +603,8 @@ class Settings {
         }
     }
 
-    getAzAuthUrl(baseUrl) {
+   getAzAuthUrl() {
+        const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
         return pkg.env === 'azuriom' 
             ? baseUrl 
             : this.config.azauth.endsWith('/') 

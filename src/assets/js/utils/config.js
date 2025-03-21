@@ -7,13 +7,21 @@ const fetch = require("node-fetch");
 const convert = require("xml-js");
 
 const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings;
-const settings_urI = new URL(settings_url);
-const configUrl = pkg.env === 'azuriom' ? `${settings_urI}api/centralcorp/options` : `${settings_urI}/utils/api`;
+
+function getConfigUrl() {
+    const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
+    return pkg.env === 'azuriom' ? `${baseUrl}api/centralcorp/options` : `${baseUrl}utils/api`;
+}
+
+function getAzAuthUrl(config) {
+    const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
+    return pkg.env === 'azuriom' ? baseUrl : config.azauth.endsWith('/') ? config.azauth : `${config.azauth}/`;
+}
 
 class Config {
     async GetConfig() {
         try {
-            const response = await fetch(configUrl);
+            const response = await fetch(getConfigUrl());
             return await response.json();
         } catch (error) {
             console.error("Failed to fetch config:", error);
@@ -24,8 +32,7 @@ class Config {
     async GetNews() {
         try {
             this.config = await this.GetConfig();
-            const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
-            const newsUrl = new URL('/api/rss', pkg.env === 'azuriom' ? baseUrl : this.config.azauth);
+            const newsUrl = new URL('/api/rss', getAzAuthUrl(this.config));
 
             const rss = await fetch(newsUrl).then(res => res.text());
             const rssParsed = JSON.parse(convert.xml2json(rss, { compact: true }));

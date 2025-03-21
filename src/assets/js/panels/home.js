@@ -7,8 +7,8 @@
 import { logger, database, changePanel } from '../utils.js';
 const { Launch, Status } = require('minecraft-java-core-azbetter');
 const { ipcRenderer, shell } = require('electron');
-const path = require('path'); // Add this line to import the path module
-const fs = require('fs'); // Add this line to import the fs module
+const path = require('path');
+const fs = require('fs');
 const launch = new Launch();
 const pkg = require('../package.json');
 const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings;
@@ -79,7 +79,7 @@ class Home {
 
     async initLaunch() {
         document.querySelector('.play-btn').addEventListener('click', async () => {
-            await this.verifyModsBeforeLaunch(); // Ensure mods are verified before launching
+            await this.verifyModsBeforeLaunch();
             const opts = await this.getLaunchOptions();
             const playBtn = document.querySelector('.play-btn');
             const info = document.querySelector(".text-download");
