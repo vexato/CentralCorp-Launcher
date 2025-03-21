@@ -5,8 +5,8 @@
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
-    "env": "panel",
-    "settings": "https:/dev.conflictura.eu",
+    "env": "azuriom",
+    "settings": "https://conflictura.eu/",
     "engines": {
         "node": "20.x.x"
     },
