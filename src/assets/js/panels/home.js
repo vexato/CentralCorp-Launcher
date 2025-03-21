@@ -259,8 +259,8 @@ class Home {
     async verifyModsBeforeLaunch() {
         const playButton = document.querySelector('.play-btn');
         playButton.addEventListener('click', async () => {
-            const modsDir = path.join(`${dataDirectory}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}`, 'mods');
-            const launcherConfigDir = path.join(`${dataDirectory}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}`, 'launcher_config');
+            const modsDir = path.join(dataDirectory, process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`, 'mods');
+            const launcherConfigDir = path.join(dataDirectory, process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`, 'launcher_config');
             const modsConfigFile = path.join(launcherConfigDir, 'mods_config.json');
 
             let modsConfig;
@@ -276,7 +276,7 @@ class Home {
                 if (modFiles.length > 0) {
                     const modFile = modFiles[0];
                     const modFilePath = path.join(modsDir, modFile);
-                    const newModFilePath = modsConfig[mod] ? modFilePath.replace('.jar-disable', '.jar') : modFilePath.replace('.jar', '.jar-disable');
+                    const newModFilePath = modsConfig[mod] ? modFilePath.replace('.jar-disable', '.jar') : modFilePath.endsWith('.jar-disable') ? modFilePath : `${modFilePath}.disable`;
                     if (modFilePath !== newModFilePath) {
                         fs.renameSync(modFilePath, newModFilePath);
                     }
