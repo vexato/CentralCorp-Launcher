@@ -7,17 +7,16 @@
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
     "env": "azuriom",
     "settings": "https://conflictura.eu/",
-    "engines": {
-        "node": "20.x.x"
-    },
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
-        "build": "node build.js",
-        "dev": "nodemon --exec npm start"
+        "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",
+        "build": "node build.js --obf=true --build=platform",
+        "icon": "node build.js --icon=https://raw.githubusercontent.com/Riptiaz/CentralCorp-Launcher/master/src/assets/images/icon.png"
     },
-    "license": "CC0",
+    "license": "CCANC",
     "nodemonConfig": {
-        "ext": "js,html,css"
+        "ext": "js,html,css",
+        "ignore": "**/test"
     },
     "dependencies": {
         "discord-rpc": "^4.0.1",
