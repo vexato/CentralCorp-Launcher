@@ -18,14 +18,10 @@ class Slider {
         this.min = parseFloat(this.slider.getAttribute('min'));
         this.max = parseFloat(this.slider.getAttribute('max'));
 
-        if (!minValue) minValue = this.min;
-        if (!maxValue) maxValue = this.max;
-
-        this.minValue = minValue;
-        this.maxValue = maxValue;
+        this.minValue = minValue || this.min;
+        this.maxValue = maxValue || this.max;
 
         this.step = parseFloat(this.slider.getAttribute('step'));
-
         this.normalizeFact = 18;
 
         this.reset();
@@ -37,112 +33,92 @@ class Slider {
         this.setMinValue(this.minValue);
         this.setMaxValue(this.maxValue);
 
-        this.touchLeft.addEventListener('mousedown', (event) => { this.onStart(event.path[1], event) });
-        this.touchRight.addEventListener('mousedown', (event) => { this.onStart(event.path[1], event) });
-        this.touchLeft.addEventListener('touchstart', (event) => { this.onStart(event.path[1], event) });
-        this.touchRight.addEventListener('touchstart', (event) => { this.onStart(event.path[1], event) });
+        this.touchLeft.addEventListener('mousedown', (event) => this.onStart(event, this.touchLeft));
+        this.touchRight.addEventListener('mousedown', (event) => this.onStart(event, this.touchRight));
+        this.touchLeft.addEventListener('touchstart', (event) => this.onStart(event, this.touchLeft));
+        this.touchRight.addEventListener('touchstart', (event) => this.onStart(event, this.touchRight));
     }
 
     reset() {
         this.touchLeft.style.left = '0px';
-        this.touchRight.style.left = (this.slider.offsetWidth - this.touchLeft.offsetWidth) + 'px';
+        this.touchRight.style.left = `${this.slider.offsetWidth - this.touchLeft.offsetWidth}px`;
         this.lineSpan.style.marginLeft = '0px';
-        this.lineSpan.style.width = (this.slider.offsetWidth - this.touchLeft.offsetWidth) + 'px';
+        this.lineSpan.style.width = `${this.slider.offsetWidth - this.touchLeft.offsetWidth}px`;
         this.startX = 0;
         this.x = 0;
     }
 
     setMinValue(minValue) {
-        let ratio = (minValue - this.min) / (this.max - this.min);
-        this.touchLeft.style.left = Math.ceil(ratio * (this.slider.offsetWidth - (this.touchLeft.offsetWidth + this.normalizeFact))) + 'px';
-        this.lineSpan.style.marginLeft = this.touchLeft.offsetLeft + 'px';
-        this.lineSpan.style.width = (this.touchRight.offsetLeft - this.touchLeft.offsetLeft) + 'px';
+        const ratio = (minValue - this.min) / (this.max - this.min);
+        this.touchLeft.style.left = `${Math.ceil(ratio * (this.slider.offsetWidth - (this.touchLeft.offsetWidth + this.normalizeFact)))}px`;
+        this.lineSpan.style.marginLeft = `${this.touchLeft.offsetLeft}px`;
+        this.lineSpan.style.width = `${this.touchRight.offsetLeft - this.touchLeft.offsetLeft}px`;
     }
 
     setMaxValue(maxValue) {
-        var ratio = (maxValue - this.min) / (this.max - this.min);
-        this.touchRight.style.left = Math.ceil(ratio * (this.slider.offsetWidth - (this.touchLeft.offsetWidth + this.normalizeFact)) + this.normalizeFact) + 'px';
-        this.lineSpan.style.marginLeft = this.touchLeft.offsetLeft + 'px';
-        this.lineSpan.style.width = (this.touchRight.offsetLeft - this.touchLeft.offsetLeft) + 'px';
+        const ratio = (maxValue - this.min) / (this.max - this.min);
+        this.touchRight.style.left = `${Math.ceil(ratio * (this.slider.offsetWidth - (this.touchLeft.offsetWidth + this.normalizeFact)) + this.normalizeFact)}px`;
+        this.lineSpan.style.marginLeft = `${this.touchLeft.offsetLeft}px`;
+        this.lineSpan.style.width = `${this.touchRight.offsetLeft - this.touchLeft.offsetLeft}px`;
     }
 
-    onStart(elem, event) {
+    onStart(event, elem) {
         event.preventDefault();
 
-        if (elem === this.touchLeft)
-            this.x = this.touchLeft.offsetLeft;
-        else
-            this.x = this.touchRight.offsetLeft;
-
+        this.x = elem === this.touchLeft ? this.touchLeft.offsetLeft : this.touchRight.offsetLeft;
         this.startX = event.pageX - this.x;
         this.selectedTouch = elem;
 
-        let self = this;
-        this.func1 = (event) => { this.onMove(event) };
-        this.func2 = (event) => { this.onStop(event) };
-
-        document.addEventListener('mousemove', this.func1);
-        document.addEventListener('mouseup', this.func2);
-        document.addEventListener('touchmove', this.func1);
-        document.addEventListener('touchend', this.func2);
+        document.addEventListener('mousemove', this.onMove);
+        document.addEventListener('mouseup', this.onStop);
+        document.addEventListener('touchmove', this.onMove);
+        document.addEventListener('touchend', this.onStop);
     }
 
-    onMove(event) {
+    onMove = (event) => {
         this.x = event.pageX - this.startX;
 
         if (this.selectedTouch === this.touchLeft) {
-            if (this.x > this.touchRight.offsetLeft - this.selectedTouch.offsetWidth - 24)
-                this.x = this.touchRight.offsetLeft - this.selectedTouch.offsetWidth - 24;
-            else if (this.x < 0)
-                this.x = 0;
-
-            this.selectedTouch.style.left = this.x + 'px';
+            this.x = Math.max(0, Math.min(this.x, this.touchRight.offsetLeft - this.selectedTouch.offsetWidth - 24));
+            this.selectedTouch.style.left = `${this.x}px`;
         } else if (this.selectedTouch === this.touchRight) {
-            if (this.x < this.touchLeft.offsetLeft + this.touchLeft.offsetWidth + 24) {
-                this.x = this.touchLeft.offsetLeft + this.touchLeft.offsetWidth + 24;
-            } else if (this.x > this.maxX)
-                this.x = this.maxX;
-
-            this.selectedTouch.style.left = this.x + 'px';
+            this.x = Math.max(this.touchLeft.offsetLeft + this.touchLeft.offsetWidth + 24, Math.min(this.x, this.maxX));
+            this.selectedTouch.style.left = `${this.x}px`;
         }
 
-        this.lineSpan.style.marginLeft = this.touchLeft.offsetLeft + 'px';
-        this.lineSpan.style.width = this.touchRight.offsetLeft - this.touchLeft.offsetLeft + 'px';
+        this.lineSpan.style.marginLeft = `${this.touchLeft.offsetLeft}px`;
+        this.lineSpan.style.width = `${this.touchRight.offsetLeft - this.touchLeft.offsetLeft}px`;
 
         this.calculateValue();
     }
 
-    onStop(self, event) {
-        document.removeEventListener('mousemove', this.func1);
-        document.removeEventListener('mouseup', this.func2);
-        document.removeEventListener('touchmove', this.func1);
-        document.removeEventListener('touchend', this.func2);
+    onStop = () => {
+        document.removeEventListener('mousemove', this.onMove);
+        document.removeEventListener('mouseup', this.onStop);
+        document.removeEventListener('touchmove', this.onMove);
+        document.removeEventListener('touchend', this.onStop);
 
         this.selectedTouch = null;
-
         this.calculateValue();
     }
 
     calculateValue() {
-        let newValue = (this.lineSpan.offsetWidth - this.normalizeFact) / this.initialValue;
+        const newValue = (this.lineSpan.offsetWidth - this.normalizeFact) / this.initialValue;
         let minValue = this.lineSpan.offsetLeft / this.initialValue;
         let maxValue = minValue + newValue;
 
         minValue = minValue * (this.max - this.min) + this.min;
         maxValue = maxValue * (this.max - this.min) + this.min;
 
-        if (this.step != 0.0) {
-            let multi = Math.floor(minValue / this.step);
-            this.minValue = this.step * multi;
-
-            multi = Math.floor(maxValue / this.step);
-            this.maxValue = this.step * multi;
+        if (this.step !== 0.0) {
+            this.minValue = this.step * Math.floor(minValue / this.step);
+            this.maxValue = this.step * Math.floor(maxValue / this.step);
         }
 
         this.emit('change', this.minValue, this.maxValue);
     }
 
-    func = [];
+    func = {};
 
     on(name, func) {
         this.func[name] = func;

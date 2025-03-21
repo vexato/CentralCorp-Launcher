@@ -1,69 +1,60 @@
 /**
- * @author Luuxis
  * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0/
  */
 
 const pkg = require('../package.json');
-const fetch = require("node-fetch")
-const convert = require("xml-js")
-let settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings
-let settings_urI = new URL(settings_url)
-let config = `${settings_urI}/utils/api`;
+const fetch = require("node-fetch");
+const convert = require("xml-js");
 
-
+const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings;
+const settings_urI = new URL(settings_url);
+const configUrl = pkg.env === 'azuriom' ? `${settings_urI}api/centralcorp/options` : `${settings_urI}/utils/api`;
 
 class Config {
-    GetConfig() {
-        return new Promise((resolve, reject) => {
-            fetch(config).then(config => {
-                return resolve(config.json());
-            }).catch(error => {
-                return reject(error);
-            })
-        })
-    }
-    async GetNews() {
-        this.config = await this.GetConfig().then(res => res);
-        let base_news = new URL(this.config.azauth)
-        let news = new URL('/api/rss', this.config.azauth)
-        let rss = await fetch(news).then(res => res.text());
-        let rssparse = JSON.parse(convert.xml2json(rss, { compact: true }));
-        let data = [];
-    
-        // Vérifier si des articles sont disponibles
-        if (rssparse.rss.channel.item) {
-            // Si c'est un tableau, parcourir chaque élément
-            if (Array.isArray(rssparse.rss.channel.item)) {
-                for (let i of rssparse.rss.channel.item) {
-                    let item = {}
-                    item.title = i.title._text;
-                    item.content = i['content:encoded']._text;
-                    item.author = i['dc:creator']._text;
-                    item.publish_date = i.pubDate._text;
-                    data.push(item);
-                }
-            } else {
-                // Sinon, il n'y a qu'un seul article, traitez-le comme un tableau
-                let item = {}
-                item.title = rssparse.rss.channel.item.title._text;
-                item.content = rssparse.rss.channel.item['content:encoded']._text;
-                item.author = rssparse.rss.channel.item['dc:creator']._text;
-                item.publish_date = rssparse.rss.channel.item.pubDate._text;
-                data.push(item);
-            }
-        } else {
-            // Aucun article disponible, ajoutez un message ou faites autre chose
-            data.push({
-                title: "Aucun article disponible",
-                content: "Aucun article n'a été trouvé.",
-                author: "",
-                publish_date: "2024"
-            });
+    async GetConfig() {
+        try {
+            const response = await fetch(configUrl);
+            return await response.json();
+        } catch (error) {
+            console.error("Failed to fetch config:", error);
+            throw error;
         }
-    
-        return data;
     }
-    
+
+    async GetNews() {
+        try {
+            this.config = await this.GetConfig();
+            const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
+            const newsUrl = new URL('/api/rss', pkg.env === 'azuriom' ? baseUrl : this.config.azauth);
+
+            const rss = await fetch(newsUrl).then(res => res.text());
+            const rssParsed = JSON.parse(convert.xml2json(rss, { compact: true }));
+            const items = rssParsed.rss.channel.item;
+
+            if (!items) {
+                return [{
+                    title: "Aucun article disponible",
+                    content: "Aucun article n'a été trouvé.",
+                    author: "",
+                    publish_date: "2024"
+                }];
+            }
+
+            return Array.isArray(items) ? items.map(this.parseNewsItem) : [this.parseNewsItem(items)];
+        } catch (error) {
+            console.error("Failed to fetch news:", error);
+            throw error;
+        }
+    }
+
+    parseNewsItem(item) {
+        return {
+            title: item.title._text,
+            content: item['content:encoded']._text,
+            author: item['dc:creator']._text,
+            publish_date: item.pubDate._text
+        };
+    }
 }
 
-export default new Config;
+export default new Config();

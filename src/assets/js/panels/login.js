@@ -2,9 +2,9 @@ import { database, changePanel, addAccount, accountSelect } from '../utils.js';
 const { AZauth } = require('minecraft-java-core-azbetter');
 const { ipcRenderer, shell } = require('electron');
 const pkg = require('../package.json');
+const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings;
 
 'use strict';
-
 
 class Login {
     static id = "login";
@@ -12,123 +12,88 @@ class Login {
     async init(config) {
         this.config = config;
         this.database = await new database().init();
-        if (this.config.online) {
-            this.getOnline();
-        } else {
-            this.getOffline();
-        }
+        this.config.online ? this.getOnline() : this.getOffline();
     }
-    async refreshData() {
 
+    async refreshData() {
         document.querySelector('.player-role').innerHTML = '';
         document.querySelector('.player-monnaie').innerHTML = '';
-        
         await this.initOthers();
         await this.initPreviewSkin();
     }
+
     async initPreviewSkin() {
         console.log('initPreviewSkin called');
-        const websiteUrl = this.config.azauth;
-        let uuid = (await this.database.get('1234', 'accounts-selected')).value;
-        let account = (await this.database.get(uuid.selected, 'accounts')).value;
-    
-        let title = document.querySelector('.player-skin-title');
-        title.innerHTML = `Skin de ${account.name}`;
-    
-        const skin = document.querySelector('.skin-renderer-settings');
-        const cacheBuster = new Date().getTime();
-        const url = `${websiteUrl}/skin3d/3d-api/skin-api/${account.name}?_=${cacheBuster}`;
-        skin.src = url;
+        const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
+        const websiteUrl = pkg.env === 'azuriom' ? `${baseUrl}` : this.config.azauth;
+        const uuid = (await this.database.get('1234', 'accounts-selected')).value;
+        const account = (await this.database.get(uuid.selected, 'accounts')).value;
+
+        document.querySelector('.player-skin-title').innerHTML = `Skin de ${account.name}`;
+        document.querySelector('.skin-renderer-settings').src = `${websiteUrl}skin3d/3d-api/skin-api/${account.name}`;
     }
+
     async initOthers() {
         const uuid = (await this.database.get('1234', 'accounts-selected')).value;
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
 
-        if (this.config.role === true && account.user_info.role) {
+        this.updateRole(account);
+        this.updateMoney(account);
+        this.updateWhitelist(account);
+        this.updateBackground(account);
+    }
+
+    updateRole(account) {
+        if (this.config.role && account.user_info.role) {
             const blockRole = document.createElement("div");
             blockRole.innerHTML = `<div>Grade: ${account.user_info.role.name}</div>`;
             document.querySelector('.player-role').appendChild(blockRole);
         } else {
             document.querySelector(".player-role").style.display = "none";
         }
+    }
 
-        if (this.config.money === true) {
+    updateMoney(account) {
+        if (this.config.money) {
             const blockMonnaie = document.createElement("div");
             blockMonnaie.innerHTML = `<div>${account.user_info.monnaie} pts</div>`;
             document.querySelector('.player-monnaie').appendChild(blockMonnaie);
         } else {
             document.querySelector(".player-monnaie").style.display = "none";
         }
-        if (this.config.whitelist_activate === true && 
+    }
+
+    updateWhitelist(account) {
+        const playBtn = document.querySelector(".play-btn");
+        if (this.config.whitelist_activate && 
             (!this.config.whitelist.includes(account.name) &&
              !this.config.whitelist_roles.includes(account.user_info.role.name))) {
-            document.querySelector(".play-btn").style.backgroundColor = "#696969";
-            document.querySelector(".play-btn").style.pointerEvents = "none";
-            document.querySelector(".play-btn").style.boxShadow = "none";
-            document.querySelector(".play-btn").textContent = "Indisponible";
+            playBtn.style.backgroundColor = "#696969";
+            playBtn.style.pointerEvents = "none";
+            playBtn.style.boxShadow = "none";
+            playBtn.textContent = "Indisponible";
         } else {
-            document.querySelector(".play-btn").style.backgroundColor = "#00bd7a";
-            document.querySelector(".play-btn").style.pointerEvents = "auto";
-            document.querySelector(".play-btn").style.boxShadow = "2px 2px 5px rgba(0, 0, 0, 0.3)";
-            document.querySelector(".play-btn").textContent = "Jouer";
+            playBtn.style.backgroundColor = "#00bd7a";
+            playBtn.style.pointerEvents = "auto";
+            playBtn.style.boxShadow = "2px 2px 5px rgba(0, 0, 0, 0.3)";
+            playBtn.textContent = "Jouer";
         }
-        
-        
-        const urlPattern = /^(http:\/\/|https:\/\/)/;
-        if (account.user_info.role.name === this.config.role_data.role1.name) {
-            if (urlPattern.test(this.config.role_data.role1.background) === true) {
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.config.role_data.role1.background}) black no-repeat center center scroll`;
-            } else {
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
-            }
-        }
-        if (account.user_info.role.name === this.config.role_data.role2.name) {
-            if (urlPattern.test(this.config.role_data.role2.background) === true) {
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.config.role_data.role2.background}) black no-repeat center center scroll`;
-            }else {
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
-            }
-        }
-        if (account.user_info.role.name === this.config.role_data.role3.name) {
-            if (urlPattern.test(this.config.role_data.role3.background) === true) {
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.config.role_data.role3.background}) black no-repeat center center scroll`;
-            } else {
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
-            }
-        }
-        if (account.user_info.role.name === this.config.role_data.role4.name) {
-            if (urlPattern.test(this.config.role_data.role4.background) === true) {
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.config.role_data.role4.background}) black no-repeat center center scroll`;
-            } else {
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
-            }
-        }
-        if (account.user_info.role.name === this.config.role_data.role5.name) {
-            if (urlPattern.test(this.config.role_data.role5.background) === true) {
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.config.role_data.role5.background}) black no-repeat center center scroll`;
-            } else {
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
-            }
-        }
-        if (account.user_info.role.name === this.config.role_data.role6.name) {
-            if (urlPattern.test(this.config.role_data.role6.background) === true) {
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.config.role_data.role6.background}) black no-repeat center center scroll`;
-            } else {
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
-            }
-        }
-        if (account.user_info.role.name === this.config.role_data.role7.name) {
-            if (urlPattern.test(this.config.role_data.role7.background) === true) {
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.config.role_data.role7.background}) black no-repeat center center scroll`;
-            } else {
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
-            }
-        }
-        if (account.user_info.role.name === this.config.role_data.role8.name) {
-            if (urlPattern.test(this.config.role_data.role1.background) === true) {
-            document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${this.config.role_data.role8.background}) black no-repeat center center scroll`;
-            } else {
-                document.body.style.background = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
+    }
+
+    updateBackground(account) {
+        if (this.config.role_data) {
+            for (const roleKey in this.config.role_data) {
+                if (this.config.role_data.hasOwnProperty(roleKey)) {
+                    const role = this.config.role_data[roleKey];
+                    if (account.user_info.role.name === role.name) {
+                        const backgroundUrl = role.background;
+                        const urlPattern = /^(https?:\/\/)/;
+                        document.body.style.background = urlPattern.test(backgroundUrl) 
+                            ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${backgroundUrl}) black no-repeat center center scroll`
+                            : `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../src/assets/images/background/light.jpg") black no-repeat center center scroll`;
+                        break;
+                    }
+                }
             }
         }
     }
@@ -143,224 +108,187 @@ class Login {
     }
 
     async loginAzAuth() {
-        const mailInput = document.querySelector('.Mail');
-        const passwordInput = document.querySelector('.Password');
-        const cancelMojangBtn = document.querySelector('.cancel-mojang');
-        const infoLogin = document.querySelector('.info-login');
-        const loginBtn = document.querySelector(".login-btn");
-        const mojangBtn = document.querySelector('.mojang');
-        const loginBtn2f = document.querySelector('.login-btn-2f');
-        const a2finput = document.querySelector('.a2f');
-        const infoLogin2f = document.querySelector('.info-login-2f');
-        const cancel2f = document.querySelector('.cancel-2f');
-        const infoLoginEmail = document.querySelector('.info-login-email');
-        const cancelEmail = document.querySelector('.cancel-email');
+        const elements = this.getElements();
+        const azauth = this.getAzAuthUrl();
 
-        const azauth = this.config.azauth;
-               const newuserurl = `${azauth}/user/register`;
-               this.newuser = document.querySelector(".new-user");
-               this.newuser.innerHTML = "Pas de compte ?";
-               this.newuser.addEventListener('click', () => {
-                   shell.openExternal(newuserurl);
-               });
-       
-               const passwordreseturl = `${azauth}/user/password/reset`;
-               this.passwordreset = document.querySelector(".password-reset");
-               this.passwordreset.innerHTML = "Mot de passe oublié ?";
-               this.passwordreset.addEventListener('click', () => {
-                   shell.openExternal(passwordreseturl);
-               });
+        this.setupExternalLinks(azauth);
+        this.setupEventListeners(elements, azauth);
+    }
 
-        mojangBtn.addEventListener("click", () => {
-            document.querySelector(".login-card").style.display = "none";
-            document.querySelector(".login-card-mojang").style.display = "block";
-            document.querySelector('.a2f-card').style.display = "none";
-            document.querySelector('.email-verify-card').style.display = "none";
-        });
+    getElements() {
+        return {
+            mailInput: document.querySelector('.Mail'),
+            passwordInput: document.querySelector('.Password'),
+            cancelMojangBtn: document.querySelector('.cancel-mojang'),
+            infoLogin: document.querySelector('.info-login'),
+            loginBtn: document.querySelector(".login-btn"),
+            mojangBtn: document.querySelector('.mojang'),
+            loginBtn2f: document.querySelector('.login-btn-2f'),
+            a2finput: document.querySelector('.a2f'),
+            infoLogin2f: document.querySelector('.info-login-2f'),
+            cancel2f: document.querySelector('.cancel-2f'),
+            infoLoginEmail: document.querySelector('.info-login-email'),
+            cancelEmail: document.querySelector('.cancel-email')
+        };
+    }
 
-        cancelMojangBtn.addEventListener("click", () => {
-            document.querySelector(".login-card").style.display = "block";
-            document.querySelector(".login-card-mojang").style.display = "none";
-            document.querySelector('.a2f-card').style.display = "none";
-            document.querySelector('.email-verify-card').style.display = "none";
-        });
+    getAzAuthUrl() {
+        const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
+        return pkg.env === 'azuriom' 
+            ? baseUrl 
+            : this.config.azauth.endsWith('/') 
+            ? this.config.azauth 
+            : `${this.config.azauth}/`;
+    }
 
-        cancel2f.addEventListener("click", () => {
-            document.querySelector(".login-card").style.display = "block";
-            document.querySelector(".login-card-mojang").style.display = "none";
-            document.querySelector('.a2f-card').style.display = "none";
-            document.querySelector('.email-verify-card').style.display = "none";
-            infoLogin.style.display = "none";
-            cancelMojangBtn.disabled = false;
-            mailInput.value = "";
-            loginBtn.disabled = false;
-            mailInput.disabled = false;
-            passwordInput.disabled = false;
-            passwordInput.value = "";
-        });
-        cancelEmail.addEventListener("click", () => {
-            document.querySelector(".login-card").style.display = "block";
-            document.querySelector(".login-card-mojang").style.display = "none";
-            document.querySelector('.a2f-card').style.display = "none";
-            document.querySelector('.email-verify-card').style.display = "none";
-            infoLogin.style.display = "none";
-            cancelMojangBtn.disabled = false;
-            mailInput.value = "";
-            loginBtn.disabled = false;
-            mailInput.disabled = false;
-            passwordInput.disabled = false;
-            passwordInput.value = "";
-        });
+    setupExternalLinks(azauth) {
+        const newuserurl = `${azauth}user/register`;
+        const passwordreseturl = `${azauth}user/password/reset`;
 
-        loginBtn2f.addEventListener("click", async () => {
-            if (a2finput.value == "") {
-                infoLogin2f.innerHTML = "Entrez votre code a2f";
+        this.newuser = document.querySelector(".new-user");
+        this.newuser.innerHTML = "Pas de compte ?";
+        this.newuser.addEventListener('click', () => shell.openExternal(newuserurl));
+
+        this.passwordreset = document.querySelector(".password-reset");
+        this.passwordreset.innerHTML = "Mot de passe oublié ?";
+        this.passwordreset.addEventListener('click', () => shell.openExternal(passwordreseturl));
+    }
+
+    setupEventListeners(elements, azauth) {
+        elements.mojangBtn.addEventListener("click", () => this.toggleLoginCards("mojang"));
+        elements.cancelMojangBtn.addEventListener("click", () => this.toggleLoginCards("default"));
+        elements.cancel2f.addEventListener("click", () => this.resetLoginForm(elements));
+        elements.cancelEmail.addEventListener("click", () => this.resetLoginForm(elements));
+
+        elements.loginBtn2f.addEventListener("click", async () => {
+            if (elements.a2finput.value === "") {
+                elements.infoLogin2f.innerHTML = "Entrez votre code a2f";
                 return;
             }
-            const azAuth = new AZauth(azauth);
-
-            await azAuth.login(mailInput.value, passwordInput.value, a2finput.value).then(async account_connect => {
-                console.log(account_connect);
-                if (account_connect.error) {
-                    infoLogin2f.innerHTML = 'Code a2f invalide';
-                    return;
-                }
-                const account = {
-                    access_token: account_connect.access_token,
-                    client_token: account_connect.uuid,
-                    uuid: account_connect.uuid,
-                    name: account_connect.name,
-                    user_properties: account_connect.user_properties,
-                    meta: {
-                        type: account_connect.meta.type,
-                        offline: true
-                    },
-                    user_info: {
-                        role: account_connect.user_info.role,
-                        monnaie: account_connect.user_info.money,
-                        verified: account_connect.user_info.verified,
-                    },
-                };
-
-                this.database.add(account, 'accounts');
-                this.database.update({ uuid: "1234", selected: account.uuid }, 'accounts-selected');
-
-                addAccount(account);
-                accountSelect(account.uuid);
-                changePanel("home");
-                this.refreshData();
-
-                cancelMojangBtn.disabled = false;
-                cancelMojangBtn.click();
-                mailInput.value = "";
-                loginBtn.disabled = false;
-                mailInput.disabled = false;
-                passwordInput.disabled = false;
-                loginBtn.style.display = "block";
-                infoLogin.innerHTML = "&nbsp;";
-            });
+            await this.handleLogin(elements, azauth, elements.a2finput.value);
         });
 
-        loginBtn.addEventListener("click", async () => {
-            cancelMojangBtn.disabled = true;
-            loginBtn.disabled = true;
-            mailInput.disabled = true;
-            passwordInput.disabled = true;
-            infoLogin.innerHTML = "Connexion en cours...";
+        elements.loginBtn.addEventListener("click", async () => {
+            elements.cancelMojangBtn.disabled = true;
+            elements.loginBtn.disabled = true;
+            elements.mailInput.disabled = true;
+            elements.passwordInput.disabled = true;
+            elements.infoLogin.innerHTML = "Connexion en cours...";
 
-            if (mailInput.value == "") {
-                console.log(mailInput.value);
-                infoLogin.innerHTML = "Entrez votre pseudo";
-                cancelMojangBtn.disabled = false;
-                loginBtn.disabled = false;
-                mailInput.disabled = false;
-                passwordInput.disabled = false;
+            if (elements.mailInput.value === "") {
+                elements.infoLogin.innerHTML = "Entrez votre pseudo";
+                this.enableLoginForm(elements);
                 return;
             }
 
-            if (passwordInput.value == "") {
-                infoLogin.innerHTML = "Entrez votre mot de passe";
-                cancelMojangBtn.disabled = false;
-                loginBtn.disabled = false;
-                mailInput.disabled = false;
-                passwordInput.disabled = false;
+            if (elements.passwordInput.value === "") {
+                elements.infoLogin.innerHTML = "Entrez votre mot de passe";
+                this.enableLoginForm(elements);
                 return;
             }
-            const azAuth = new AZauth(azauth);
 
-            await azAuth.login(mailInput.value, passwordInput.value).then(async account_connect => {
-                console.log(account_connect);
-
-                if (account_connect.A2F === true) {
-                    document.querySelector('.a2f-card').style.display = "block";
-                    document.querySelector(".login-card-mojang").style.display = "none";
-                    cancelMojangBtn.disabled = false;
-                    return;
-                }
-
-                if (account_connect.reason === 'user_banned') {
-                    cancelMojangBtn.disabled = false;
-                    loginBtn.disabled = false;
-                    mailInput.disabled = false;
-                    passwordInput.disabled = false;
-                    infoLogin.innerHTML = 'Votre compte est banni';
-                    return;
-                }
-
-                cancelMojangBtn.addEventListener("click", () => {
-                    document.querySelector(".login-card").style.display = "block";
-                    document.querySelector(".login-card-mojang").style.display = "none";
-                    document.querySelector('.a2f-card').style.display = "none";
-                });
-
-                const account = {
-                    access_token: account_connect.access_token,
-                    client_token: account_connect.uuid,
-                    uuid: account_connect.uuid,
-                    name: account_connect.name,
-                    user_properties: account_connect.user_properties,
-                    meta: {
-                        type: account_connect.meta.type,
-                        offline: true,
-                    },
-                    user_info: {
-                        role: account_connect.user_info.role,
-                        monnaie: account_connect.user_info.money,
-                        verified: account_connect.user_info.verified,
-                    },
-                };
-                if (this.config.email_verified === true && account.user_info.verified === false) {
-                    document.querySelector('.email-verify-card').style.display = "block";
-                    document.querySelector(".login-card-mojang").style.display = "none";
-                    cancelMojangBtn.disabled = false;
-                    return;
-                }
-                this.database.add(account, 'accounts');
-                this.database.update({ uuid: "1234", selected: account.uuid }, 'accounts-selected');
-
-                addAccount(account);
-                accountSelect(account.uuid);
-                changePanel("home");
-                this.refreshData();
-
-                cancelMojangBtn.disabled = false;
-                cancelMojangBtn.click();
-                mailInput.value = "";
-                loginBtn.disabled = false;
-                mailInput.disabled = false;
-                passwordInput.disabled = false;
-                passwordInput.value = "";
-                loginBtn.style.display = "block";
-                infoLogin.innerHTML = "&nbsp;";
-            }).catch(err => {
-                console.log(err);
-                cancelMojangBtn.disabled = false;
-                loginBtn.disabled = false;
-                mailInput.disabled = false;
-                passwordInput.disabled = false;
-                infoLogin.innerHTML = 'Adresse E-mail ou mot de passe invalide';
-            });
+            await this.handleLogin(elements, azauth);
         });
+    }
+
+    toggleLoginCards(cardType) {
+        const loginCard = document.querySelector(".login-card");
+        const loginCardMojang = document.querySelector(".login-card-mojang");
+        const a2fCard = document.querySelector('.a2f-card');
+        const emailVerifyCard = document.querySelector('.email-verify-card');
+
+        loginCard.style.display = cardType === "default" ? "block" : "none";
+        loginCardMojang.style.display = cardType === "mojang" ? "block" : "none";
+        a2fCard.style.display = "none";
+        emailVerifyCard.style.display = "none";
+    }
+
+    resetLoginForm(elements) {
+        this.toggleLoginCards("default");
+        elements.infoLogin.style.display = "none";
+        elements.cancelMojangBtn.disabled = false;
+        elements.mailInput.value = "";
+        elements.loginBtn.disabled = false;
+        elements.mailInput.disabled = false;
+        elements.passwordInput.disabled = false;
+        elements.passwordInput.value = "";
+    }
+
+    enableLoginForm(elements) {
+        elements.cancelMojangBtn.disabled = false;
+        elements.loginBtn.disabled = false;
+        elements.mailInput.disabled = false;
+        elements.passwordInput.disabled = false;
+    }
+
+    async handleLogin(elements, azauth, a2fCode = null) {
+        const azAuth = new AZauth(azauth);
+        try {
+            const account_connect = a2fCode 
+                ? await azAuth.login(elements.mailInput.value, elements.passwordInput.value, a2fCode)
+                : await azAuth.login(elements.mailInput.value, elements.passwordInput.value);
+
+            if (account_connect.error) {
+                elements.infoLogin2f.innerHTML = 'Code a2f invalide';
+                return;
+            }
+
+            if (account_connect.A2F) {
+                this.toggleLoginCards("a2f");
+                elements.cancelMojangBtn.disabled = false;
+                return;
+            }
+
+            if (account_connect.reason === 'user_banned') {
+                elements.infoLogin.innerHTML = 'Votre compte est banni';
+                this.enableLoginForm(elements);
+                return;
+            }
+
+            const account = this.createAccountObject(account_connect);
+            if (this.config.email_verified && !account.user_info.verified) {
+                this.toggleLoginCards("email");
+                elements.cancelMojangBtn.disabled = false;
+                return;
+            }
+
+            await this.saveAccount(account);
+            this.resetLoginForm(elements);
+            elements.loginBtn.style.display = "block";
+            elements.infoLogin.innerHTML = "&nbsp;";
+        } catch (err) {
+            console.log(err);
+            elements.infoLogin.innerHTML = 'Adresse E-mail ou mot de passe invalide';
+            this.enableLoginForm(elements);
+        }
+    }
+
+    createAccountObject(account_connect) {
+        return {
+            access_token: account_connect.access_token,
+            client_token: account_connect.uuid,
+            uuid: account_connect.uuid,
+            name: account_connect.name,
+            user_properties: account_connect.user_properties,
+            meta: {
+                type: account_connect.meta.type,
+                offline: true
+            },
+            user_info: {
+                role: account_connect.user_info.role,
+                monnaie: account_connect.user_info.money,
+                verified: account_connect.user_info.verified,
+            },
+        };
+    }
+
+    async saveAccount(account) {
+        await this.database.add(account, 'accounts');
+        await this.database.update({ uuid: "1234", selected: account.uuid }, 'accounts-selected');
+        addAccount(account);
+        accountSelect(account.uuid);
+        changePanel("home");
+        this.refreshData();
     }
 }
 
