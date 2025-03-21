@@ -1,13 +1,12 @@
 {
     "name": "conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "3.1.3",
+    "version": "3.1.4",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
     "env": "azuriom",
     "settings": "https://conflictura.eu/",
-
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "build": "node build.js",
@@ -30,7 +29,7 @@
         "electron": "^22.3.24",
         "electron-builder": "^24.6.4",
         "nodemon": "^3.1.9"
-        },
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Riptiaz/CentralCorp-Launcher.git"

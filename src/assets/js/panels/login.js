@@ -199,7 +199,7 @@ class Login {
 
         loginCard.style.display = cardType === "default" ? "block" : "none";
         loginCardMojang.style.display = cardType === "mojang" ? "block" : "none";
-        a2fCard.style.display = "none";
+        a2fCard.style.display = cardType === "a2f"? "block" : "none";
         emailVerifyCard.style.display = "none";
     }
 
@@ -212,6 +212,7 @@ class Login {
         elements.mailInput.disabled = false;
         elements.passwordInput.disabled = false;
         elements.passwordInput.value = "";
+        elements.a2finput.value = "";
     }
 
     enableLoginForm(elements) {
@@ -232,12 +233,14 @@ class Login {
                 elements.infoLogin2f.innerHTML = 'Code a2f invalide';
                 return;
             }
-
-            if (account_connect.A2F) {
+            console.log(account_connect.A2F);
+            if (account_connect.A2F === true) {
                 this.toggleLoginCards("a2f");
+                elements.a2finput.value = "";
                 elements.cancelMojangBtn.disabled = false;
                 return;
             }
+            
 
             if (account_connect.reason === 'user_banned') {
                 elements.infoLogin.innerHTML = 'Votre compte est banni';
