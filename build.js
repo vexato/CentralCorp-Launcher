@@ -13,7 +13,7 @@ builder.build({
         asar: true,
         publish: {
             provider: "github",
-            releaseType: "release", // ✅ Publication en release et non en draft
+            releaseType: "release",
         },
         win: {
             icon: "./src/assets/images/icon.ico",

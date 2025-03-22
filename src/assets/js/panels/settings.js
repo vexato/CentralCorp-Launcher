@@ -28,6 +28,8 @@ class Settings {
         this.initLauncherSettings();
         this.updateModsConfig();
         this.initOptionalMods();
+        this.headplayer();
+
 
         document.getElementById('uploadSkinButton').addEventListener('click', async () => {
             await this.selectFile();
@@ -39,7 +41,6 @@ class Settings {
         document.querySelector('.player-monnaie').innerHTML = '';
         await this.initOthers();
         await this.initPreviewSkin();
-        await this.headplayer();
         await this.updateAccountImage();
     }
 
@@ -47,7 +48,6 @@ class Settings {
         const uuid = (await this.database.get('1234', 'accounts-selected')).value;
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
         const pseudo = account.name;
-        const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
         const azauth = this.getAzAuthUrl();
         const timestamp = new Date().getTime();
         const skin_url = `${azauth}api/skin-api/avatars/face/${pseudo}/?t=${timestamp}`;
@@ -57,7 +57,6 @@ class Settings {
     async updateAccountImage() {
         const uuid = (await this.database.get('1234', 'accounts-selected')).value;
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
-        const baseUrl = settings_url.endsWith('/') ? settings_url : `${settings_url}/`;
         const azauth = this.getAzAuthUrl();
         const timestamp = new Date().getTime();
 
@@ -449,6 +448,7 @@ class Settings {
             if (xhr.status === 200) {
                 console.log('Skin updated successfully!');
                 await this.initPreviewSkin();
+                await this.headplayer();
             } else {
                 console.error(`Failed to update skin. Status code: ${xhr.status}`);
             }

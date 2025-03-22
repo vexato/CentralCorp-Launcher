@@ -1,7 +1,7 @@
 {
     "name": "conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "3.1.5",
+    "version": "3.1.6",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
@@ -9,7 +9,7 @@
     "settings": "https://conflictura.eu/",
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
-        "build": "node build.js",
+        "build": "node build.js --build=platform",
         "dev": "nodemon --exec npm start"
     },
     "license": "CC0",
@@ -18,7 +18,7 @@
     },
     "dependencies": {
         "discord-rpc": "^4.0.1",
-        "electron-updater": "^6.1.4",
+        "electron-updater": "^6.1.8",
         "https": "^1.0.0",
         "minecraft-java-core-azbetter": "^4.0.1",
         "node-fetch": "^2.6.7",
@@ -27,7 +27,7 @@
     "devDependencies": {
         "cross-env": "^7.0.3",
         "electron": "^22.3.24",
-        "electron-builder": "^24.6.4",
+        "electron-builder": "^24.13.3",
         "nodemon": "^3.1.9"
     },
     "repository": {
