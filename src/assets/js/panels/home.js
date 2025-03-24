@@ -209,6 +209,18 @@ class Home {
         }
 
         const youtubeVideoId = this.config.video_url;
+        const videoType = this.config.video_type;
+        let youtubeEmbedUrl;
+
+        if (videoType === 'short') {
+            youtubeEmbedUrl = `https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&playsinline=1`;
+        } else if (videoType === 'video') {
+            youtubeEmbedUrl = `https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1`;
+        } else {
+            console.error('Invalid video type specified in the configuration.');
+            return;
+        }
+
         const youtubeThumbnailUrl = `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`;
         const videoThumbnail = videoContainer.querySelector('.youtube-thumbnail');
         const thumbnailImg = videoThumbnail.querySelector('.thumbnail-img');
@@ -220,7 +232,7 @@ class Home {
         if (thumbnailImg && playButton) {
             thumbnailImg.src = youtubeThumbnailUrl;
             videoThumbnail.addEventListener('click', () => {
-                videoThumbnail.innerHTML = `<iframe width="500" height="290" src="https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+                videoThumbnail.innerHTML = `<iframe width="500" height="290" src="${youtubeEmbedUrl}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
             });
         }
     }

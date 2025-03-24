@@ -1,12 +1,12 @@
 {
     "name": "conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "3.1.6",
+    "version": "3.1.7",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
     "env": "azuriom",
-    "settings": "https://conflictura.eu/",
+    "settings": "https://conflictura.eu",
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "build": "node build.js --build=platform",
