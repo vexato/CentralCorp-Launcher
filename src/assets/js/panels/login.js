@@ -200,7 +200,7 @@ class Login {
         loginCard.style.display = cardType === "default" ? "block" : "none";
         loginCardMojang.style.display = cardType === "mojang" ? "block" : "none";
         a2fCard.style.display = cardType === "a2f"? "block" : "none";
-        emailVerifyCard.style.display = "none";
+        emailVerifyCard.style.display = cardType === "email"? "block" : "none";
     }
 
     resetLoginForm(elements) {
@@ -220,6 +220,7 @@ class Login {
         elements.loginBtn.disabled = false;
         elements.mailInput.disabled = false;
         elements.passwordInput.disabled = false;
+        
     }
 
     async handleLogin(elements, azauth, a2fCode = null) {
@@ -230,28 +231,30 @@ class Login {
                 : await azAuth.login(elements.mailInput.value, elements.passwordInput.value);
 
             if (account_connect.error) {
-                elements.infoLogin2f.innerHTML = 'Code a2f invalide';
+                if (account_connect.reason === 'user_banned') {
+                    elements.infoLogin.innerHTML = 'Votre compte est banni';
+                } else if (account_connect.reason === 'invalid_credentials') {
+                    elements.infoLogin.innerHTML = 'Adresse E-mail ou mot de passe invalide';
+                } else if (account_connect.reason === 'email_not_verified') {
+                    elements.infoLogin.innerHTML = 'Veuillez vérifier votre adresse e-mail pour continuer';
+                } else {
+                    elements.infoLogin.innerHTML = account_connect.message || 'Une erreur est survenue';
+                }
+                this.enableLoginForm(elements);
                 return;
             }
-            console.log(account_connect.A2F);
+
             if (account_connect.A2F === true) {
                 this.toggleLoginCards("a2f");
                 elements.a2finput.value = "";
                 elements.cancelMojangBtn.disabled = false;
                 return;
             }
-            
-
-            if (account_connect.reason === 'user_banned') {
-                elements.infoLogin.innerHTML = 'Votre compte est banni';
-                this.enableLoginForm(elements);
-                return;
-            }
 
             const account = this.createAccountObject(account_connect);
             if (this.config.email_verified && !account.user_info.verified) {
-                this.toggleLoginCards("email");
-                elements.cancelMojangBtn.disabled = false;
+                elements.infoLogin.innerHTML = 'Veuillez vérifier votre adresse e-mail pour continuer';
+                this.enableLoginForm(elements);
                 return;
             }
 
@@ -260,8 +263,8 @@ class Login {
             elements.loginBtn.style.display = "block";
             elements.infoLogin.innerHTML = "&nbsp;";
         } catch (err) {
-            console.log(err);
-            elements.infoLogin.innerHTML = 'Adresse E-mail ou mot de passe invalide';
+            console.error(err);
+            elements.infoLogin.innerHTML = 'Une erreur est survenue lors de la connexion';
             this.enableLoginForm(elements);
         }
     }
