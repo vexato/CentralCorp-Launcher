@@ -181,7 +181,7 @@ class Settings {
         const sliderDiv = document.querySelector(".memory-slider");
         sliderDiv.setAttribute("max", Math.trunc((80 * totalMem) / 100));
 
-        const ram = ramDatabase ? ramDatabase : { ramMin: "1", ramMax: "2" };
+        const ram = ramDatabase ? ramDatabase : { ramMin: this.config.ram_min, ramMax: this.config.ram_max };
         const slider = new Slider(".memory-slider", parseFloat(ram.ramMin), parseFloat(ram.ramMax));
 
         const minSpan = document.querySelector(".slider-touch-left span");
@@ -595,7 +595,7 @@ class Settings {
         }
 
         if (!(await this.database.getAll('ram')).length) {
-            this.database.add({ uuid: "1234", ramMin: "1", ramMax: "2" }, 'ram')
+            this.database.add({ uuid: "1234", ramMin: "2", ramMax: "4" }, 'ram')
         }
 
         if (!(await this.database.getAll('screen')).length) {
