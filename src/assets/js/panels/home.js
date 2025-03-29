@@ -121,9 +121,10 @@ class Home {
             },
             verify: this.config.verify,
             ignored: [
-                this.config.ignored,
+                ...(Array.isArray(this.config.ignored) ? this.config.ignored : Object.values(this.config.ignored)),
                 "launcher_config",
             ],
+            
             java: this.config.java,
             memory: {
                 min: `${ram.ramMin * 1024}M`,
