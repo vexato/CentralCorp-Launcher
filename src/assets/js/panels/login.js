@@ -161,6 +161,7 @@ class Login {
         elements.cancelEmail.addEventListener("click", () => this.resetLoginForm(elements));
 
         elements.loginBtn2f.addEventListener("click", async () => {
+            elements.infoLogin2f.innerHTML = "Connexion en cours...";
             if (elements.a2finput.value === "") {
                 elements.infoLogin2f.innerHTML = "Entrez votre code a2f";
                 return;
@@ -205,7 +206,8 @@ class Login {
 
     resetLoginForm(elements) {
         this.toggleLoginCards("default");
-        elements.infoLogin.style.display = "none";
+        elements.infoLogin.innerHTML = "";
+        elements.infoLogin2f.innerHTML = "";
         elements.cancelMojangBtn.disabled = false;
         elements.mailInput.value = "";
         elements.loginBtn.disabled = false;
@@ -235,10 +237,11 @@ class Login {
                     elements.infoLogin.innerHTML = 'Votre compte est banni';
                 } else if (account_connect.reason === 'invalid_credentials') {
                     elements.infoLogin.innerHTML = 'Adresse E-mail ou mot de passe invalide';
-                } else if (account_connect.reason === 'email_not_verified') {
-                    elements.infoLogin.innerHTML = 'Veuillez vérifier votre adresse e-mail pour continuer';
-                } else {
+                } else if (account_connect.reason === 'invalid_2fa') {
+                    elements.infoLogin2f.innerHTML = 'Code 2FA invalide';
+                }else {
                     elements.infoLogin.innerHTML = account_connect.message || 'Une erreur est survenue';
+                    elements.infoLogin2f.innerHTML = account_connect.message || 'Une erreur est survenue';
                 }
                 this.enableLoginForm(elements);
                 return;
@@ -251,13 +254,16 @@ class Login {
                 return;
             }
 
-            const account = this.createAccountObject(account_connect);
-            if (this.config.email_verified && !account.user_info.verified) {
-                elements.infoLogin.innerHTML = 'Veuillez vérifier votre adresse e-mail pour continuer';
+            if (this.config.email_verified && !account_connect.user_info.verified) {
+                elements.infoLogin.innerHTML = 'Veuillez vérifier votre adresse e-mail';
+                elements.infoLogin2f.innerHTML = 'Veuillez vérifier votre adresse e-mail';
                 this.enableLoginForm(elements);
                 return;
             }
 
+            console.log(account_connect);
+
+            const account = this.createAccountObject(account_connect);
             await this.saveAccount(account);
             this.resetLoginForm(elements);
             elements.loginBtn.style.display = "block";
