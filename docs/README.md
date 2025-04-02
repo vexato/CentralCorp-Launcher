@@ -1,5 +1,4 @@
 ![logo](https://centralcorp.github.io/minecraft_title.png)
-# 🚀 Minecraft Launcher
 
 ## 🌍 English Version
 
@@ -7,7 +6,9 @@
 A **Minecraft launcher** fully synchronized with the **Azuriom Auth API**, allowing full customization directly from a **web panel** or an **Azuriom plugin**, without needing to update the launcher itself.
 
 🔹 You will need **hosting** for your Azuriom website and a separate one for the panel, **unless** you purchase the Azuriom plugin, which integrates everything into your site.
+
 🔹 This launcher **does not support Microsoft Online servers**, only **offline** servers.
+
 🔹 Use **[AzLINK](https://azuriom.com/fr/azlink)** (Spigot plugin) and **AuthME** to configure authentication via the Azuriom API for your Minecraft server.
 
 ---
@@ -47,7 +48,7 @@ Find all the necessary information to configure and use the launcher.
 - ⚡ **Set MIN/MAX RAM by default** (useful for high-resource servers)
 
 🔗 **Useful Links:**
-- **[AzLINK](https://azuriom.com/fr/azlink)** (Spigot plugin for authentication)
+- **[AzLink](https://azuriom.com/fr/azlink)** (Spigot plugin for authentication)
 - **[AzuriomSkinAPI](https://www.spigotmc.org/resources/azuriomskinapi-1-8-1-21.112676/)** (Spigot plugin for skins)
 
 ---
@@ -58,7 +59,9 @@ Find all the necessary information to configure and use the launcher.
 Un **launcher Minecraft** entièrement synchronisé avec l'**API Auth d'Azuriom**, permettant une personnalisation complète directement depuis un **panel web** ou un **plugin Azuriom**, sans nécessiter de mise à jour du launcher.
 
 🔹 Vous aurez besoin d'un **hébergement** pour votre site Azuriom et d'un autre pour le panel, **sauf** si vous achetez le plugin Azuriom, qui regroupe tout sur votre site.
+
 🔹 Ce launcher **ne prend pas en charge les serveurs ONLINE Microsoft**, uniquement les **serveurs OFFLINE**.
+
 🔹 Utilisez **[AzLINK](https://azuriom.com/fr/azlink)** (plugin Spigot) et **AuthME** pour configurer l'authentification via l'API Azuriom sur votre serveur Minecraft.
 
 ---
@@ -98,7 +101,7 @@ Toutes les informations nécessaires pour configurer et utiliser le launcher.
 - ⚡ **Définir la RAM MIN/MAX par défaut** (idéal pour les serveurs gourmands)
 
 🔗 **Liens Utiles :**
-- **[AzLINK](https://azuriom.com/fr/azlink)** (Plugin Spigot pour l'authentification)
+- **[AzLink](https://azuriom.com/fr/azlink)** (Plugin Spigot pour l'authentification)
 - **[AzuriomSkinAPI](https://www.spigotmc.org/resources/azuriomskinapi-1-8-1-21.112676/)** (Plugin Spigot pour les skins)
 
 ---
