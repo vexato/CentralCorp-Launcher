@@ -112,9 +112,3 @@ Toutes les informations nécessaires pour configurer et utiliser le launcher.
 ![Image 2](https://centralcorp.github.io/image2.png)  
 ![Image 3](https://centralcorp.github.io/image3.png)  
 ![Image 4](https://centralcorp.github.io/image4.png) 
-
-
-
-
-## Besoin d'Aide ?
-Si vous avez des questions ou besoin d'assistance, rejoignez-nous sur notre [Discord](https://discord.gg/VCmNXHvf77). Nous serons ravis de vous aider !
