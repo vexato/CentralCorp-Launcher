@@ -1,4 +1,4 @@
-![logo](https://centralcorp.github.io/minecraft_title.png)
+![logo](https://centralcorp.github.io/assets/img/minecraft_title.png)
 
 ## 🌍 English Version
 
@@ -114,7 +114,7 @@ Toutes les informations nécessaires pour configurer et utiliser le launcher.
 
 ### 🖼️ Images / Screenshots
 
-![Image 1](https://centralcorp.github.io/image.png)  
-![Image 2](https://centralcorp.github.io/image2.png)  
-![Image 3](https://centralcorp.github.io/image3.png)  
-![Image 4](https://centralcorp.github.io/image4.png) 
+![Image 1](https://centralcorp.github.io/assets/img/image.png)  
+![Image 2](https://centralcorp.github.io/assets/img/image2.png)  
+![Image 3](https://centralcorp.github.io/assets/img/image3.png)  
+![Image 4](https://centralcorp.github.io/assets/img/image4.png) 
