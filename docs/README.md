@@ -11,6 +11,9 @@ A **Minecraft launcher** fully synchronized with the **Azuriom Auth API**, allow
 
 🔹 Use **[AzLINK](https://azuriom.com/fr/azlink)** (Spigot plugin) and **AuthME** to configure authentication via the Azuriom API for your Minecraft server.
 
+🔹 This launcher supports several default languages: French, English, German, Spanish, and Russian. You can simply add a new language via a JSON file in the translations folder, in assets.
+The language will be chosen based on the client's system language.
+
 ---
 
 ### 📖 Full Documentation
@@ -63,6 +66,9 @@ Un **launcher Minecraft** entièrement synchronisé avec l'**API Auth d'Azuriom*
 🔹 Ce launcher **ne prend pas en charge les serveurs ONLINE Microsoft**, uniquement les **serveurs OFFLINE**.
 
 🔹 Utilisez **[AzLINK](https://azuriom.com/fr/azlink)** (plugin Spigot) et **AuthME** pour configurer l'authentification via l'API Azuriom sur votre serveur Minecraft.
+
+🔹 Ce launcher supporte plusieurs langues par défaut: français, anglais, allemand, espagnol et russe. Vous pouvez ajouter simplement une nouvelle langue via un JSON dans le dossier translations, dans assets.
+La langue sera choisie en fonction de la langue système du client.
 
 ---
 
