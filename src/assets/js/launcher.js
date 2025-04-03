@@ -12,7 +12,7 @@ const pkg = require('../package.json');
 const { ipcRenderer } = require('electron');
 const DiscordRPC = require('discord-rpc');
 
-import { config, logger, changePanel, database, addAccount, accountSelect } from './utils.js';
+import { config, logger, changePanel, database, addAccount, accountSelect, t } from './utils.js';
 import Login from './panels/login.js';
 import Home from './panels/home.js';
 import Settings from './panels/settings.js';
@@ -203,7 +203,7 @@ class Launcher {
     updateRole(account) {
         if (this.config.role && account.user_info.role) {
             const blockRole = document.createElement("div");
-            blockRole.innerHTML = `<div>Grade: ${account.user_info.role.name}</div>`;
+            blockRole.innerHTML = `<div>${t('grade')}: ${account.user_info.role.name}</div>`;
             document.querySelector('.player-role').appendChild(blockRole);
         } else {
             document.querySelector(".player-role").style.display = "none";
@@ -228,12 +228,12 @@ class Launcher {
             playBtn.style.backgroundColor = "#696969";
             playBtn.style.pointerEvents = "none";
             playBtn.style.boxShadow = "none";
-            playBtn.textContent = "Indisponible";
+            playBtn.textContent = t('unavailable');
         } else {
             playBtn.style.backgroundColor = "#00bd7a";
             playBtn.style.pointerEvents = "auto";
             playBtn.style.boxShadow = "2px 2px 5px rgba(0, 0, 0, 0.3)";
-            playBtn.textContent = "Jouer";
+            playBtn.textContent = t('play');
         }
     }
 
@@ -264,5 +264,7 @@ class Launcher {
 }
 
 new Launcher().init();
+
+document.getElementById('preload-title').textContent = t('loading');
 
 

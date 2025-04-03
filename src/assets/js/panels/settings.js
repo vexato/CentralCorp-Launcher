@@ -4,7 +4,7 @@
 
 'use strict';
 
-import { database, changePanel, accountSelect, Slider } from '../utils.js';
+import { database, changePanel, accountSelect, Slider, t } from '../utils.js';
 const dataDirectory = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME);
 
 const os = require('os');
@@ -86,7 +86,7 @@ class Settings {
     updateRole(account) {
         if (this.config.role && account.user_info.role) {
             const blockRole = document.createElement("div");
-            blockRole.innerHTML = `<div>Grade: ${account.user_info.role.name}</div>`;
+            blockRole.innerHTML = `<div>${t('grade')}: ${account.user_info.role.name}</div>`;
             document.querySelector('.player-role').appendChild(blockRole);
         } else {
             document.querySelector(".player-role").style.display = "none";
@@ -111,12 +111,12 @@ class Settings {
             playBtn.style.backgroundColor = "#696969";
             playBtn.style.pointerEvents = "none";
             playBtn.style.boxShadow = "none";
-            playBtn.textContent = "Indisponible";
+            playBtn.textContent = t('unavailable');
         } else {
             playBtn.style.backgroundColor = "#00bd7a";
             playBtn.style.pointerEvents = "auto";
             playBtn.style.boxShadow = "2px 2px 5px rgba(0, 0, 0, 0.3)";
-            playBtn.textContent = "Jouer";
+            playBtn.textContent = t('play');
         }
     }
 
@@ -175,8 +175,8 @@ class Settings {
         const totalMem = Math.trunc(os.totalmem() / 1073741824 * 10) / 10;
         const freeMem = Math.trunc(os.freemem() / 1073741824 * 10) / 10;
 
-        document.getElementById("total-ram").textContent = `${totalMem} Go`;
-        document.getElementById("free-ram").textContent = `${freeMem} Go`;
+        document.getElementById("total-ram").textContent = `${totalMem} Go RAM`;
+        document.getElementById("free-ram").textContent = `${freeMem} Go RAM disponible`;
 
         const sliderDiv = document.querySelector(".memory-slider");
         sliderDiv.setAttribute("max", Math.trunc((80 * totalMem) / 100));
@@ -194,38 +194,6 @@ class Settings {
             minSpan.setAttribute("value", `${min} Go`);
             maxSpan.setAttribute("value", `${max} Go`);
             this.database.update({ uuid: "1234", ramMin: `${min}`, ramMax: `${max}` }, 'ram');
-        });
-    }
-
-    async initJavaPath() {
-        const javaDatabase = (await this.database.get('1234', 'java-path'))?.value?.path;
-        const javaPath = javaDatabase ? javaDatabase : 'Utiliser la version de java livre avec le launcher';
-        document.querySelector(".info-path").textContent = `${dataDirectory.replace(/\\/g, "/")}/${process.platform == 'darwin' ? this.config.dataDirectory : `.${this.config.dataDirectory}`}/runtime`;
-
-        const path = document.querySelector(".path");
-        path.value = javaPath;
-        const file = document.querySelector(".path-file");
-
-        document.querySelector(".path-button").addEventListener("click", async () => {
-            file.value = '';
-            file.click();
-            await new Promise((resolve) => {
-                let interval;
-                interval = setInterval(() => {
-                    if (file.value != '') resolve(clearInterval(interval));
-                }, 100);
-            });
-
-            if (file.value.replace(".exe", '').endsWith("java") || file.value.replace(".exe", '').endsWith("javaw")) {
-                this.database.update({ uuid: "1234", path: file.value }, 'java-path');
-                path.value = file.value.replace(/\\/g, "/");
-            } else alert("Le nom du fichier doit être java ou javaw");
-        });
-
-        document.querySelector(".path-button-reset").addEventListener("click", () => {
-            path.value = 'Utiliser la version de java livre avec le launcher';
-            file.value = '';
-            this.database.update({ uuid: "1234", path: false }, 'java-path');
         });
     }
 
@@ -555,7 +523,7 @@ class Settings {
 
         for (let i = 0; i < TabBtn.length; i++) {
             TabBtn[i].addEventListener('click', () => {
-                if (TabBtn[i].classList.contains('save-tabs-btn')) return
+                if (TabBtn[i].classList.contains('save-tabs-btn')) return;
                 for (let j = 0; j < TabBtn.length; j++) {
                     TabContent[j].classList.remove('active-tab-content');
                     TabBtn[j].classList.remove('active-tab-btn');
@@ -569,7 +537,28 @@ class Settings {
             document.querySelector('.default-tab-btn').click();
             changePanel("home");
             this.refreshData();
-        })
+        });
+
+        document.getElementById('accounts-tab').innerHTML = `<i class="fas fa-user"></i><span>${t('accounts')}</span>`;
+        document.getElementById('ram-tab').innerHTML = `<i class="fab fa-java"></i><span>${t('ram_settings')}</span>`;
+        document.getElementById('launch-tab').innerHTML = `<i class="fas fa-rocket"></i><span>${t('launcher_loading')}</span>`;
+        document.getElementById('mods-tab').innerHTML = `<i class="fas fa-puzzle-piece"></i><span>${t('optional_mods')}</span>`;
+        document.getElementById('skin-tab').innerHTML = `<i class="fas fa-tshirt"></i><span>${t('skin')}</span>`;
+        document.getElementById('save-tab').innerHTML = `<i class="fas fa-save"></i><span>${t('save')}</span>`;
+
+        document.getElementById('add-account-btn').innerHTML = `<i class="fas fa-plus"></i> <span>${t('add_account')}</span>`;
+        document.getElementById('ram-title').textContent = t('ram_settings');
+        document.getElementById('ram-info').innerHTML = t('ram_detailed_info');
+        document.getElementById('total-ram').textContent = t('total_ram');
+        document.getElementById('free-ram').textContent = t('free_ram');
+        document.getElementById('launch-title').textContent = t('launcher_loading');
+        document.getElementById('close-launcher-text').textContent = t('close_launcher');
+        document.getElementById('close-all-text').textContent = t('close_all');
+        document.getElementById('open-launcher-text').textContent = t('open_launcher');
+        document.getElementById('mods-title').textContent = t('optional_mods');
+        document.getElementById('mods-info').innerHTML = t('mods_detailed_info');
+        document.getElementById('skin-title').textContent = t('skin');
+        document.getElementById('uploadSkinButton').textContent = t('change_skin');
     }
 
     async initSettingsDefault() {

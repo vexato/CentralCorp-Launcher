@@ -1,4 +1,4 @@
-import { database, changePanel, addAccount, accountSelect } from '../utils.js';
+import { database, changePanel, addAccount, accountSelect, t } from '../utils.js';
 const { AZauth } = require('minecraft-java-core-azbetter');
 const { ipcRenderer, shell } = require('electron');
 const pkg = require('../package.json');
@@ -12,7 +12,25 @@ class Login {
     async init(config) {
         this.config = config;
         this.database = await new database().init();
+        this.setStaticTexts();
         this.config.online ? this.getOnline() : this.getOffline();
+    }
+
+    setStaticTexts() {
+        document.getElementById('login-title').textContent = t('connect');
+        document.getElementById('web-login-btn').textContent = t('web_login');
+        document.getElementById('cancel-login-btn').textContent = t('cancel');
+        document.getElementById('a2f-label').textContent = t('2fa_enabled');
+        document.getElementById('a2f-login-btn').textContent = t('play');
+        document.getElementById('cancel-a2f-btn').textContent = t('cancel');
+        document.getElementById('email-verify-label').textContent = t('verify_email');
+        document.getElementById('cancel-email-btn').textContent = t('cancel');
+        document.getElementById('username-label').textContent = t('username');
+        document.getElementById('password-label').textContent = t('password');
+        document.getElementById('login-btn').textContent = t('play');
+        document.getElementById('cancel-mojang-btn').textContent = t('cancel');
+        document.getElementById('password-reset-link').textContent = t('forgot_password');
+        document.getElementById('new-user-link').textContent = t('no_account');
     }
 
     async refreshData() {
@@ -29,7 +47,7 @@ class Login {
         const uuid = (await this.database.get('1234', 'accounts-selected')).value;
         const account = (await this.database.get(uuid.selected, 'accounts')).value;
 
-        document.querySelector('.player-skin-title').innerHTML = `Skin de ${account.name}`;
+        document.querySelector('.player-skin-title').innerHTML = `${t('skin_of')} ${account.name}`;
         document.querySelector('.skin-renderer-settings').src = `${websiteUrl}skin3d/3d-api/skin-api/${account.name}`;
     }
 
@@ -46,7 +64,7 @@ class Login {
     updateRole(account) {
         if (this.config.role && account.user_info.role) {
             const blockRole = document.createElement("div");
-            blockRole.innerHTML = `<div>Grade: ${account.user_info.role.name}</div>`;
+            blockRole.innerHTML = `<div>${t('grade')}: ${account.user_info.role.name}</div>`;
             document.querySelector('.player-role').appendChild(blockRole);
         } else {
             document.querySelector(".player-role").style.display = "none";
@@ -71,12 +89,12 @@ class Login {
             playBtn.style.backgroundColor = "#696969";
             playBtn.style.pointerEvents = "none";
             playBtn.style.boxShadow = "none";
-            playBtn.textContent = "Indisponible";
+            playBtn.textContent = t('unavailable');
         } else {
             playBtn.style.backgroundColor = "#00bd7a";
             playBtn.style.pointerEvents = "auto";
             playBtn.style.boxShadow = "2px 2px 5px rgba(0, 0, 0, 0.3)";
-            playBtn.textContent = "Jouer";
+            playBtn.textContent = t('play');
         }
     }
 
@@ -146,11 +164,11 @@ class Login {
         const passwordreseturl = `${azauth}user/password/reset`;
 
         this.newuser = document.querySelector(".new-user");
-        this.newuser.innerHTML = "Pas de compte ?";
+        this.newuser.innerHTML = t('no_account');
         this.newuser.addEventListener('click', () => shell.openExternal(newuserurl));
 
         this.passwordreset = document.querySelector(".password-reset");
-        this.passwordreset.innerHTML = "Mot de passe oublié ?";
+        this.passwordreset.innerHTML = t('forgot_password');
         this.passwordreset.addEventListener('click', () => shell.openExternal(passwordreseturl));
     }
 
@@ -161,9 +179,9 @@ class Login {
         elements.cancelEmail.addEventListener("click", () => this.resetLoginForm(elements));
 
         elements.loginBtn2f.addEventListener("click", async () => {
-            elements.infoLogin2f.innerHTML = "Connexion en cours...";
+            elements.infoLogin2f.innerHTML = t('connecting');
             if (elements.a2finput.value === "") {
-                elements.infoLogin2f.innerHTML = "Entrez votre code a2f";
+                elements.infoLogin2f.innerHTML = t('enter_2fa_code');
                 return;
             }
             await this.handleLogin(elements, azauth, elements.a2finput.value);
@@ -174,16 +192,16 @@ class Login {
             elements.loginBtn.disabled = true;
             elements.mailInput.disabled = true;
             elements.passwordInput.disabled = true;
-            elements.infoLogin.innerHTML = "Connexion en cours...";
+            elements.infoLogin.innerHTML = t('connecting');
 
             if (elements.mailInput.value === "") {
-                elements.infoLogin.innerHTML = "Entrez votre pseudo";
+                elements.infoLogin.innerHTML = t('enter_username');
                 this.enableLoginForm(elements);
                 return;
             }
 
             if (elements.passwordInput.value === "") {
-                elements.infoLogin.innerHTML = "Entrez votre mot de passe";
+                elements.infoLogin.innerHTML = t('enter_password');
                 this.enableLoginForm(elements);
                 return;
             }
@@ -234,14 +252,14 @@ class Login {
 
             if (account_connect.error) {
                 if (account_connect.reason === 'user_banned') {
-                    elements.infoLogin.innerHTML = 'Votre compte est banni';
+                    elements.infoLogin.innerHTML = t('account_banned');
                 } else if (account_connect.reason === 'invalid_credentials') {
-                    elements.infoLogin.innerHTML = 'Adresse E-mail ou mot de passe invalide';
+                    elements.infoLogin.innerHTML = t('invalid_credentials');
                 } else if (account_connect.reason === 'invalid_2fa') {
-                    elements.infoLogin2f.innerHTML = 'Code 2FA invalide';
-                }else {
-                    elements.infoLogin.innerHTML = account_connect.message || 'Une erreur est survenue';
-                    elements.infoLogin2f.innerHTML = account_connect.message || 'Une erreur est survenue';
+                    elements.infoLogin2f.innerHTML = t('invalid_2fa_code');
+                } else {
+                    elements.infoLogin.innerHTML = t('error_occurred');
+                    elements.infoLogin2f.innerHTML = t('error_occurred');
                 }
                 this.enableLoginForm(elements);
                 return;
@@ -255,8 +273,8 @@ class Login {
             }
 
             if (this.config.email_verified && !account_connect.user_info.verified) {
-                elements.infoLogin.innerHTML = 'Veuillez vérifier votre adresse e-mail';
-                elements.infoLogin2f.innerHTML = 'Veuillez vérifier votre adresse e-mail';
+                elements.infoLogin.innerHTML = t('verify_email');
+                elements.infoLogin2f.innerHTML = t('verify_email');
                 this.enableLoginForm(elements);
                 return;
             }
@@ -270,7 +288,7 @@ class Login {
             elements.infoLogin.innerHTML = "&nbsp;";
         } catch (err) {
             console.error(err);
-            elements.infoLogin.innerHTML = 'Une erreur est survenue lors de la connexion';
+            elements.infoLogin.innerHTML = t('connection_error');
             this.enableLoginForm(elements);
         }
     }

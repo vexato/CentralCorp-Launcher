@@ -5,7 +5,7 @@
 
 'use strict';
 const { ipcRenderer } = require('electron');
-import { config } from './utils.js';
+import { config, t } from './utils.js';
 
 let dev = process.env.NODE_ENV === 'dev';
 
@@ -29,7 +29,10 @@ class Splash {
         this.splashAuthor.children[0].textContent = "@" + splash.author;
         })
         
-        
+        document.getElementById('splash-message').textContent = t('welcome_message');
+        document.getElementById('splash-author').textContent = t('developed_by');
+        document.getElementById('update-message').textContent = t('checking_updates');
+
         await sleep(100);
         document.querySelector("#splash").style.display = "block";
         await sleep(500);

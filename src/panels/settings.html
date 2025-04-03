@@ -2,54 +2,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
 <div class="settings-content">
     <div class="tabs-settings-btn">
-        <button style="margin-top: 40px;" class="tab-btn-css tab-btn active-tab-btn default-tab-btn">
-            <i class="fas fa-user"></i>
-            <span>Comptes</span>
-        </button>
-        <button class="tab-btn-css tab-btn">
-            <i class="fab fa-java"></i>
-            <span>RAM</span>
-        </button>
-        <button class="tab-btn-css tab-btn">
-            <i class="fas fa-rocket"></i>
-            <span>Lancement</span>
-        </button>
-        <button class="tab-btn-css tab-btn">
-            <i class="fas fa-puzzle-piece"></i>
-            <span>Mods</span>
-        </button>
-        <button class="tab-btn-css tab-btn">
-            <i class="fas fa-tshirt"></i>
-            <span>Skin</span>
-        </button>
-        <button class="tab-btn-css save-tabs-btn">
-            <i class="fas fa-save"></i>
-            <span>Enregistrer</span>
-        </button>
+        <button style="margin-top: 40px;" class="tab-btn-css tab-btn active-tab-btn default-tab-btn" id="accounts-tab"></button>
+        <button class="tab-btn-css tab-btn" id="ram-tab"></button>
+        <button class="tab-btn-css tab-btn" id="launch-tab"></button>
+        <button class="tab-btn-css tab-btn" id="mods-tab"></button>
+        <button class="tab-btn-css tab-btn" id="skin-tab"></button>
+        <button class="tab-btn-css save-tabs-btn" id="save-tab"></button>
     </div>
 
     <div class="tabs-settings-content active-tab-content">
         <div class="center-align">
-            <button class="add-account">
-                <i class="fas fa-plus"></i> <span>Ajouter un compte</span>
-            </button>
+            <button class="add-account" id="add-account-btn"></button>
             <div class="accounts"></div>
         </div>
     </div>
 
-
     <div class="tabs-settings-content">
         <div class="settings-content-scroll">
-            <div class="title-settings">Paramètre de votre RAM.</div>
+            <div class="title-settings" id="ram-title"></div>
             <div class="java-settings">
-                <div class="information">
-                    Définition de la RAM alloué à votre jeu, une quantité plus importante augmentera les performances de votre jeu.<br> A noter qu'il faut éviter de mettre une trop grande quantité sinon cela peut provoquer des pertes de performances sur vos
-                    autres applications.
-                    <br><br>
-                    <b>- RAM Maximale :</b> Indique la quantité totale de RAM allouée à votre jeu. Il est recommandé de ne pas dépasser 50% de la quantité totale de RAM présente sur votre PC afin qu'il puisse fonctionner correctement. Si votre ordinateur
-                    a plus de 8Go de RAM, nous vous recommandons d'allouer 3Go. Si votre ordinateur a 4Go ou moins, n'allouez pas plus de 2Go.<br><br>
-                    <b>- RAM Minimale :</b> Indique la quantité minimale de RAM allouée au démarrage de votre jeu. Il est recommandé de ne pas mettre plus de 3Go pour cette valeur. La valeur typique est de 1Go.
-                </div>
+                <div class="information" id="ram-info"></div>
                 <div class="ram-info">
                     <div class="memory-slider" min="0.5" max="8" step="0.5">
                         <div class="slider-touch-left">
@@ -64,8 +36,8 @@
                     </div>
 
                     <div class="ram-info-block">
-                        <b>Vous possédez un total de <span id="total-ram">0 Go</span> RAM.</b><br>
-                        <b>Vous possédez un total de <span id="free-ram">0 Go</span> RAM disponible.</b>
+                        <span id="total-ram"></span><br>
+                        <span id="free-ram"></span>
                     </div>
                 </div>
             </div>
@@ -74,12 +46,12 @@
 
     <div class="tabs-settings-content">
         <div class="center-page">
-            <div class="title-settings">Paramètre après le lancement du jeu.</div>
+            <div class="title-settings" id="launch-title"></div>
             <div class="java-settings">
                 <div class="information">
-                    <input type="checkbox" class="checkbox-settings" id="launcher-close"><label for="launcher-close"><div class="checkround"></div></label> Fermer le launcher après le lancement du jeu.</br>
-                    <input type="checkbox" class="checkbox-settings" id="launcher-close-all"><label for="launcher-close-all"><div class="checkround"></div></label> Fermer le jeu si le launcher est fermé.</br>
-                    <input type="checkbox" class="checkbox-settings" id="launcher-open"><label for="launcher-open"><div class="checkround"></div></label> Garder le launcher ouvert après le lancement du jeu.
+                    <input type="checkbox" class="checkbox-settings" id="launcher-close"><label for="launcher-close"><div class="checkround"></div></label><span id="close-launcher-text"></span></br>
+                    <input type="checkbox" class="checkbox-settings" id="launcher-close-all"><label for="launcher-close-all"><div class="checkround"></div></label><span id="close-all-text"></span></br>
+                    <input type="checkbox" class="checkbox-settings" id="launcher-open"><label for="launcher-open"><div class="checkround"></div></label><span id="open-launcher-text"></span>
                 </div>
             </div>
         </div>
@@ -88,26 +60,21 @@
 <div class="tabs-settings-content">
     <div class="settings-content-scroll">
         <div class="center-page">
-            <div class="title-settings">Mods Optionnels</div>
+            <div class="title-settings" id="mods-title"></div>
             <div class="mods-info">
-                <div class="information">
-                    Explications : Les mods présents dans cette fenêtre sont dits "optionnels", ce qui veut dire qu'ils ne sont pas obligatoires pour vous connecter au serveur et que vous pouvez choisir de lancer votre jeu avec ou non. Lorsque la case est cochée, cela signifie que le mod sera bien lancé avec le jeu. Sinon, cela veut dire qu'il est désactivé et que ce mod ne sera pas lancé avec le reste de votre jeu.
-                    <br><br>
-                    Si un mod est marqué comme "recommandé", cela signifie que les développeurs pensent qu'il est mieux pour votre expérience de jeu que vous le possédiez. Faites défiler la liste pour voir tous les mods optionnels disponibles.
-                </div>
+                <div class="information" id="mods-info"></div>
                 <div class="mods-list" id="mods-list"></div>
-    
             </div>
         </div>
     </div>
 </div>
 <div class="tabs-settings-content">
-    <div class="player-skin-title title-settings">Personnaliser votre Skin</div>
+    <div class="player-skin-title title-settings" id="skin-title"></div>
     <div class="center-page">
         <div class="skin-container-settings">
-            <iframe frameborder="0" id="skinRender2" class="skin-renderer-settings"  style="border: none; width: 319px; height: 221px;" src=""></iframe>
+            <iframe frameborder="0" id="skinRender2" class="skin-renderer-settings" style="border: none; width: 319px; height: 221px;" src=""></iframe>
             <input type="file" id="fileInput" accept="image/png" style="display: none;">  
-            <button id="uploadSkinButton" class="upload-skin-btn">Changer de skin</button>          
+            <button id="uploadSkinButton" class="upload-skin-btn"></button>          
         </div>
     </div>
 </div>

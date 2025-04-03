@@ -7,6 +7,30 @@ import database from './utils/database.js';
 import logger from './utils/logger.js';
 import slider from './utils/slider.js';
 const pkg = require('../package.json');
+const fs = require('fs');
+const path = require('path');
+
+let translations = {};
+const systemLanguage = navigator.language.split('-')[0] || 'en';
+
+function loadTranslations() {
+    const translationPath = path.join(__dirname, `./assets/translations/${systemLanguage}.json`);
+    if (fs.existsSync(translationPath)) {
+        translations = JSON.parse(fs.readFileSync(translationPath, 'utf8'));
+    } else {
+        console.error(`Translation file for language "${systemLanguage}" not found. Falling back to English.`);
+        const fallbackPath = path.join(__dirname, './assets/translations/en.json');
+        if (fs.existsSync(fallbackPath)) {
+            translations = JSON.parse(fs.readFileSync(fallbackPath, 'utf8'));
+        }
+    }
+}
+
+function t(key) {
+    return translations[key] || key;
+}
+
+loadTranslations();
 
 const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings;
 
@@ -18,6 +42,7 @@ export {
     addAccount,
     slider as Slider,
     accountSelect,
+    t
 };
 
 function changePanel(id) {
