@@ -118,3 +118,4 @@ Toutes les informations nécessaires pour configurer et utiliser le launcher.
 ![Image 2](https://centralcorp.github.io/assets/img/image2.png)  
 ![Image 3](https://centralcorp.github.io/assets/img/image3.png)  
 ![Image 4](https://centralcorp.github.io/assets/img/image4.png) 
+
