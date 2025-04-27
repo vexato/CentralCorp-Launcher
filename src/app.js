@@ -3,7 +3,7 @@
  * @license CC-BY-NC 4.0 - https://creativecommons.org/licenses/by-nc/4.0/
  */
 
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, nativeTheme } = require('electron');
 const { Microsoft } = require('minecraft-java-core-azbetter');
 const { autoUpdater } = require('electron-updater')
 
@@ -52,6 +52,12 @@ ipcMain.on('main-window-maximize', () => {
 ipcMain.on('main-window-hide', () => MainWindow.getWindow().hide())
 ipcMain.on('main-window-show', () => MainWindow.getWindow().show())
 
+ipcMain.handle('is-dark-theme', (_, theme) => {
+    if (theme === 'dark') return true
+    if (theme === 'light') return false
+    return nativeTheme.shouldUseDarkColors;
+})
+
 ipcMain.handle('Microsoft-window', async (event, client_id) => {
     return await new Microsoft(client_id).getAuth();
 })
@@ -62,8 +68,17 @@ app.on('window-all-closed', () => {
 
 autoUpdater.autoDownload = false;
 
-ipcMain.on('update-app', () => {
-    autoUpdater.checkForUpdates();
+ipcMain.handle('update-app', async () => {
+    return await new Promise(async (resolve, reject) => {
+        autoUpdater.checkForUpdates().then(res => {
+            resolve(res);
+        }).catch(error => {
+            reject({
+                error: true,
+                message: error
+            })
+        })
+    })
 })
 
 autoUpdater.on('update-available', () => {
@@ -88,3 +103,7 @@ autoUpdater.on('download-progress', (progress) => {
     const updateWindow = UpdateWindow.getWindow();
     if (updateWindow) updateWindow.webContents.send('download-progress', progress);
 })
+autoUpdater.on('error', (err) => {
+    const updateWindow = UpdateWindow.getWindow();
+    if (updateWindow) updateWindow.webContents.send('error', err);
+});
