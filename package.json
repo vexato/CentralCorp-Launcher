@@ -1,7 +1,7 @@
 {
     "name": "conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "3.2.4",
+    "version": "3.2.5",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
@@ -10,7 +10,7 @@
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "build": "node build.js --obf=true --build=platform",
-        "dev": "nodemon --exec npm start",
+        "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",
         "icon": "node build.js --icon=https://raw.githubusercontent.com/CentralCorp/CentralCorp-Launcher/master/src/assets/images/icon.png"
 
     },

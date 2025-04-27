@@ -22,15 +22,11 @@ if (dev) {
     app.setPath('userData', appPath);
 }
 
-const gotTheLock = app.requestSingleInstanceLock();
-
-if (!gotTheLock) {
-    app.quit();
-} else {
-    app.whenReady().then(() => {
-        UpdateWindow.createWindow();
-    });
-}
+if (!app.requestSingleInstanceLock()) app.quit();
+else app.whenReady().then(() => {
+    if (dev) return MainWindow.createWindow()
+    UpdateWindow.createWindow()
+});
 
 ipcMain.on('update-window-close', () => UpdateWindow.destroyWindow())
 ipcMain.on('update-window-dev-tools', () => UpdateWindow.getWindow().webContents.openDevTools())
