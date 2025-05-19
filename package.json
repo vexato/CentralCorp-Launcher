@@ -1,7 +1,7 @@
 {
     "name": "conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "3.2.6",
+    "version": "3.2.7",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
@@ -28,7 +28,7 @@
     },
     "devDependencies": {
         "cross-env": "^7.0.3",
-        "electron": "^30.0.9",
+        "electron": "^22.3.24",
         "electron-builder": "^26.0.12",
         "nodemon": "^3.1.9",
         "png2icons": "^2.0.1",
