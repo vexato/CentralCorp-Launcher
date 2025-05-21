@@ -1,7 +1,7 @@
 {
     "name": "conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "3.2.7",
+    "version": "3.2.8",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
@@ -22,7 +22,7 @@
         "discord-rpc": "^4.0.1",
         "electron-updater": "^6.1.8",
         "https": "^1.0.0",
-        "minecraft-java-core-azbetter": "^4.1.0",
+        "minecraft-java-core-azbetter": "^4.1.1",
         "node-fetch": "^2.6.7",
         "xml-js": "^1.6.11"
     },
