@@ -138,31 +138,47 @@ class Settings {
         }
     }
 
-    initAccount() {
-        document.querySelector('.accounts').addEventListener('click', async (e) => {
-            const uuid = e.target.id;
-            const selectedaccount = await this.database.get('1234', 'accounts-selected');
+initAccount() {
+    document.querySelector('.accounts').addEventListener('click', async (e) => {
+        const path = e.composedPath();
+        const uuid = e.target.id;
+        const selectedaccount = await this.database.get('1234', 'accounts-selected');
 
-            if (e.path[0].classList.contains('account')) {
-                accountSelect(uuid);
-                this.database.update({ uuid: "1234", selected: uuid }, 'accounts-selected');
+        // Si on clique sur un élément de type .account
+        if (path[0].classList.contains('account')) {
+            accountSelect(uuid);
+            this.database.update({ uuid: "1234", selected: uuid }, 'accounts-selected');
+        }
+
+        // Si on clique sur un bouton de suppression de compte
+        if (e.target.classList.contains("account-delete")) {
+            const accountElement = path[1];
+            this.database.delete(accountElement.id, 'accounts');
+            document.querySelector('.accounts').removeChild(accountElement);
+
+            // Si plus aucun compte → retour au panneau de login
+            if (!document.querySelector('.accounts').children.length) {
+                changePanel("login");
+                return;
             }
 
-            if (e.target.classList.contains("account-delete")) {
-                this.database.delete(e.path[1].id, 'accounts');
-                document.querySelector('.accounts').removeChild(e.path[1]);
-                if (!document.querySelector('.accounts').children.length) {
+            // Si le compte supprimé était celui sélectionné → sélectionner le suivant
+            if (accountElement.id === selectedaccount?.value?.selected) {
+                const allAccounts = await this.database.getAll('accounts');
+                if (Array.isArray(allAccounts) && allAccounts.length > 0) {
+                    const newUuid = allAccounts[0]?.value?.uuid;
+                    if (newUuid) {
+                        this.database.update({ uuid: "1234", selected: newUuid }, 'accounts-selected');
+                        accountSelect(newUuid);
+                    }
+                } else {
+                    // Aucun compte restant (sécurité)
                     changePanel("login");
-                    return;
-                }
-
-                if (e.path[1].id === selectedaccount.value.selected) {
-                    const newUuid = (await this.database.getAll('accounts'))[0].value.uuid;
-                    this.database.update({ uuid: "1234", selected: newUuid }, 'accounts-selected');
-                    accountSelect(newUuid);
                 }
             }
-        });
+        }
+    });
+
 
         document.querySelector('.add-account').addEventListener('click', () => {
             document.querySelector(".cancel-login").style.display = "contents";
