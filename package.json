@@ -1,7 +1,7 @@
 {
     "name": "conflictura",
     "preductname": "Conflictura Launcher",
-    "version": "3.3.0",
+    "version": "3.2.9",
     "description": "Conflictura modded server launcher",
     "main": "src/app.js",
     "author": "Riptiaz/Boulldogo/Vexato/Luuxis",
@@ -12,6 +12,7 @@
         "build": "node build.js --obf=true --build=platform",
         "dev": "cross-env-shell DEV_TOOL=open nodemon --exec npm start",
         "icon": "node build.js --icon=https://raw.githubusercontent.com/CentralCorp/CentralCorp-Launcher/master/src/assets/images/icon.png"
+
     },
     "license": "CC0",
     "nodemonConfig": {
@@ -21,18 +22,18 @@
         "discord-rpc": "^4.0.1",
         "electron-updater": "^6.1.8",
         "https": "^1.0.0",
-        "minecraft-java-core-azbetter": "^4.1.2",
+        "minecraft-java-core-azbetter": "^4.1.1",
         "node-fetch": "^2.6.7",
         "xml-js": "^1.6.11"
     },
     "devDependencies": {
         "cross-env": "^7.0.3",
-        "electron": "^37.2.0",
+        "electron": "^22.3.24",
         "electron-builder": "^26.0.12",
         "nodemon": "^3.1.9",
         "png2icons": "^2.0.1",
         "javascript-obfuscator": "^4.1.0",
-        "jimp": "^1.0.2"
+        "jimp": "^0.22.12"
     },
     "repository": {
         "type": "git",

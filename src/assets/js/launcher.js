@@ -9,6 +9,8 @@
 const fs = require('fs');
 const { Microsoft, Mojang, AZauth } = require('minecraft-java-core-azbetter');
 const pkg = require('../package.json');
+const { ipcRenderer } = require('electron');
+const DiscordRPC = require('discord-rpc');
 
 import { config, logger, changePanel, database, addAccount, accountSelect, t } from './utils.js';
 import Login from './panels/login.js';
@@ -34,12 +36,7 @@ class Launcher {
     initLog() {
         document.addEventListener("keydown", (e) => {
             if ((e.ctrlKey && e.shiftKey && e.keyCode === 73) || e.keyCode === 123) {
-                if (window.electronAPI && window.electronAPI.openMainWindowDevTools) {
-                    window.electronAPI.openMainWindowDevTools();
-                } else if (typeof require !== 'undefined') {
-                    const { ipcRenderer } = require('electron');
-                    ipcRenderer.send("main-window-dev-tools");
-                }
+                ipcRenderer.send("main-window-dev-tools");
             }
         });
         new logger('Launcher', '#7289da');
@@ -47,8 +44,6 @@ class Launcher {
 
     initDiscordRPC() {
         if (this.config.rpc_activation) {
-            // Import DiscordRPC only when needed
-            const DiscordRPC = require('discord-rpc');
             const rpc = new DiscordRPC.Client({ transport: 'ipc' });
             rpc.on('ready', () => {
                 const presence = {
@@ -75,35 +70,20 @@ class Launcher {
         document.querySelector(".dragbar").classList.toggle("hide");
 
         document.querySelector("#minimize").addEventListener("click", () => {
-            if (window.electronAPI && window.electronAPI.minimizeWindow) {
-                window.electronAPI.minimizeWindow();
-            } else if (typeof require !== 'undefined') {
-                const { ipcRenderer } = require('electron');
-                ipcRenderer.send("main-window-minimize");
-            }
+            ipcRenderer.send("main-window-minimize");
         });
 
         let maximized = false;
         const maximize = document.querySelector("#maximize");
         maximize.addEventListener("click", () => {
-            if (window.electronAPI && window.electronAPI.maximizeWindow) {
-                window.electronAPI.maximizeWindow();
-            } else if (typeof require !== 'undefined') {
-                const { ipcRenderer } = require('electron');
-                ipcRenderer.send("main-window-maximize");
-            }
+            ipcRenderer.send("main-window-maximize");
             maximized = !maximized;
             maximize.classList.toggle("icon-maximize");
             maximize.classList.toggle("icon-restore-down");
         });
 
         document.querySelector("#close").addEventListener("click", () => {
-            if (window.electronAPI && window.electronAPI.closeMainWindow) {
-                window.electronAPI.closeMainWindow();
-            } else if (typeof require !== 'undefined') {
-                const { ipcRenderer } = require('electron');
-                ipcRenderer.send("main-window-close");
-            }
+            ipcRenderer.send("main-window-close");
         });
     }
 

@@ -6,15 +6,16 @@
 
 import { logger, database, changePanel, t } from '../utils.js';
 const { Launch, Status } = require('minecraft-java-core-azbetter');
+const { ipcRenderer, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const launch = new Launch();
 const pkg = require('../package.json');
 const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings;
 
 
 const dataDirectory = process.env.APPDATA || (process.platform == 'darwin' ? `${process.env.HOME}/Library/Application Support` : process.env.HOME);
 const MONTHS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-const launch = new Launch();
 
 class Home {
     static id = "home";
@@ -164,16 +165,7 @@ class Home {
     updateProgressBar(progressBar, info, progress, size, text) {
         progressBar.style.display = "block";
         info.innerHTML = `${text} ${((progress / size) * 100).toFixed(0)}%`;
-        
-        // Compatibility for both dev and production modes
-        if (window.electronAPI && window.electronAPI.setProgress) {
-            window.electronAPI.setProgress({ progress, size });
-        } else if (typeof require !== 'undefined') {
-            // Fallback for development mode
-            const { ipcRenderer } = require('electron');
-            ipcRenderer.send('main-window-progress', { progress, size });
-        }
-        
+        ipcRenderer.send('main-window-progress', { progress, size });
         progressBar.value = progress;
         progressBar.max = size;
     }
@@ -187,38 +179,15 @@ class Home {
 
     handleLaunchData(e, info, progressBar, playBtn, launcherSettings) {
         new logger('Minecraft', '#36b030');
-        
-        // Compatibility for both dev and production modes
-        if (launcherSettings.launcher.close === 'close-launcher') {
-            if (window.electronAPI && window.electronAPI.hideWindow) {
-                window.electronAPI.hideWindow();
-            } else if (typeof require !== 'undefined') {
-                const { ipcRenderer } = require('electron');
-                ipcRenderer.send("main-window-hide");
-            }
-        }
-        
-        if (window.electronAPI && window.electronAPI.resetProgress) {
-            window.electronAPI.resetProgress();
-        } else if (typeof require !== 'undefined') {
-            const { ipcRenderer } = require('electron');
-            ipcRenderer.send('main-window-progress-reset');
-        }
-        
+        if (launcherSettings.launcher.close === 'close-launcher') ipcRenderer.send("main-window-hide");
+        ipcRenderer.send('main-window-progress-reset');
         progressBar.style.display = "none";
         info.innerHTML = t('starting');
         console.log(e);
     }
 
     handleLaunchClose(code, info, progressBar, playBtn, launcherSettings) {
-        if (launcherSettings.launcher.close === 'close-launcher') {
-            if (window.electronAPI && window.electronAPI.showWindow) {
-                window.electronAPI.showWindow();
-            } else if (typeof require !== 'undefined') {
-                const { ipcRenderer } = require('electron');
-                ipcRenderer.send("main-window-show");
-            }
-        }
+        if (launcherSettings.launcher.close === 'close-launcher') ipcRenderer.send("main-window-show");
         progressBar.style.display = "none";
         info.style.display = "none";
         playBtn.style.display = "block";
