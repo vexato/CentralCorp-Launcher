@@ -4,10 +4,10 @@
  */
 
 'use strict';
-const { ipcRenderer, shell } = require('electron');
 import { config, t } from './utils.js';
-const os = require('os');
+
 const nodeFetch = require('node-fetch');
+const pkg = require('../package.json');
 
 
 let dev = process.env.NODE_ENV === 'dev';
@@ -21,7 +21,6 @@ class Splash {
         this.message = document.querySelector(".message");
         this.progress = document.querySelector("progress");
         document.addEventListener('DOMContentLoaded', async () => {
-            if (process.platform == 'win32') ipcRenderer.send('update-window-progress-load')
             this.startAnimation();
         })
     }
@@ -55,32 +54,71 @@ class Splash {
         async checkUpdate() {
             this.setStatus(`Recherche de mise à jour...`);
     
-            ipcRenderer.invoke('update-app').then().catch(err => {
+            // Compatibility for both dev and production modes
+            const updatePromise = window.electronAPI && window.electronAPI.updateApp 
+                ? window.electronAPI.updateApp()
+                : typeof require !== 'undefined' 
+                    ? require('electron').ipcRenderer.invoke('update-app')
+                    : Promise.reject(new Error('Electron API not available'));
+                    
+            updatePromise.then().catch(err => {
                 return this.shutdown(`erreur lors de la recherche de mise à jour :<br>${err.message}`);
             });
     
-            ipcRenderer.on('updateAvailable', () => {
-                this.setStatus(`Mise à jour disponible !`);
-                if (os.platform() == 'win32') {
-                    this.toggleProgress();
-                    ipcRenderer.send('start-update');
-                }
-                else return this.dowloadUpdate();
-            })
-    
-            ipcRenderer.on('error', (event, err) => {
-                if (err) return this.shutdown(`${err.message}`);
-            })
-    
-            ipcRenderer.on('download-progress', (event, progress) => {
-                ipcRenderer.send('update-window-progress', { progress: progress.transferred, size: progress.total })
-                this.setProgress(progress.transferred, progress.total);
-            })
-    
-            ipcRenderer.on('update-not-available', () => {
-                console.error("Mise à jour non disponible");
-                this.maintenanceCheck();
-            })
+            // Setup event listeners with compatibility
+            if (window.electronAPI && window.electronAPI.onUpdateAvailable) {
+                window.electronAPI.onUpdateAvailable(() => {
+                    this.setStatus(`Mise à jour disponible !`);
+                    const platform = window.nodeAPI ? window.nodeAPI.os.platform() : require('os').platform();
+                    if (platform == 'win32') {
+                        this.toggleProgress();
+                        if (window.electronAPI.startUpdate) {
+                            window.electronAPI.startUpdate();
+                        } else {
+                            require('electron').ipcRenderer.send('start-update');
+                        }
+                    }
+                    else return this.dowloadUpdate();
+                });
+                
+                window.electronAPI.onError((event, err) => {
+                    if (err) return this.shutdown(`${err.message}`);
+                });
+                
+                window.electronAPI.onDownloadProgress((event, progress) => {
+                    this.setProgress(progress.transferred, progress.total);
+                });
+                
+                window.electronAPI.onUpdateNotAvailable(() => {
+                    console.error("Mise à jour non disponible");
+                    this.maintenanceCheck();
+                });
+            } else if (typeof require !== 'undefined') {
+                const { ipcRenderer } = require('electron');
+                const os = require('os');
+                
+                ipcRenderer.on('updateAvailable', () => {
+                    this.setStatus(`Mise à jour disponible !`);
+                    if (os.platform() == 'win32') {
+                        this.toggleProgress();
+                        ipcRenderer.send('start-update');
+                    }
+                    else return this.dowloadUpdate();
+                });
+                
+                ipcRenderer.on('error', (event, err) => {
+                    if (err) return this.shutdown(`${err.message}`);
+                });
+                
+                ipcRenderer.on('download-progress', (event, progress) => {
+                    this.setProgress(progress.transferred, progress.total);
+                });
+                
+                ipcRenderer.on('update-not-available', () => {
+                    console.error("Mise à jour non disponible");
+                    this.maintenanceCheck();
+                });
+            }
         }
     
         getLatestReleaseForOS(os, preferredFormat, asset) {
@@ -128,8 +166,15 @@ class Splash {
 
     startLauncher() {
         this.setStatus(`Démarrage du launcher`);
-        ipcRenderer.send('main-window-open');
-        ipcRenderer.send('update-window-close');
+        
+        if (window.electronAPI && window.electronAPI.openMainWindow) {
+            window.electronAPI.openMainWindow();
+            window.electronAPI.closeUpdateWindow();
+        } else if (typeof require !== 'undefined') {
+            const { ipcRenderer } = require('electron');
+            ipcRenderer.send('main-window-open');
+            ipcRenderer.send('update-window-close');
+        }
     }
 
     shutdown(text) {
@@ -137,7 +182,14 @@ class Splash {
         let i = 4;
         setInterval(() => {
             this.setStatus(`${text}<br>Arrêt dans ${i--}s`);
-            if (i < 0) ipcRenderer.send('update-window-close');
+            if (i < 0) {
+                if (window.electronAPI && window.electronAPI.closeUpdateWindow) {
+                    window.electronAPI.closeUpdateWindow();
+                } else if (typeof require !== 'undefined') {
+                    const { ipcRenderer } = require('electron');
+                    ipcRenderer.send('update-window-close');
+                }
+            }
         }, 1000);
     }
 
@@ -161,7 +213,12 @@ function sleep(ms) {
 
 document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.shiftKey && e.keyCode == 73 || e.keyCode == 123) {
-        ipcRenderer.send("update-window-dev-tools");
+        if (window.electronAPI && window.electronAPI.openUpdateWindowDevTools) {
+            window.electronAPI.openUpdateWindowDevTools();
+        } else if (typeof require !== 'undefined') {
+            const { ipcRenderer } = require('electron');
+            ipcRenderer.send("update-window-dev-tools");
+        }
     }
 })
 

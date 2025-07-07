@@ -8,11 +8,10 @@ import { database, changePanel, accountSelect, Slider, t } from '../utils.js';
 const dataDirectory = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME);
 
 const os = require('os');
-const fetch = require('node-fetch');
 const path = require('path');
 const fs = require('fs');
+const fetch = require('node-fetch');
 const pkg = require('../package.json');
-const { ipcRenderer, shell } = require('electron');
 const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings;
 
 class Settings {

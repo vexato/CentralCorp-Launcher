@@ -33,8 +33,10 @@ function createWindow() {
         frame: false,
         show: false,
         webPreferences: {
-            contextIsolation: false,
-            nodeIntegration: true
+            contextIsolation: !dev,
+            nodeIntegration: dev,
+            enableRemoteModule: false,
+            preload: dev ? undefined : path.join(__dirname, '../preload/preload.js')
         },
     });
     Menu.setApplicationMenu(null);

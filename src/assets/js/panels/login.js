@@ -1,6 +1,5 @@
 import { database, changePanel, addAccount, accountSelect, t } from '../utils.js';
 const { AZauth } = require('minecraft-java-core-azbetter');
-const { ipcRenderer, shell } = require('electron');
 const pkg = require('../package.json');
 const settings_url = pkg.user ? `${pkg.settings}/${pkg.user}` : pkg.settings;
 
@@ -165,11 +164,25 @@ class Login {
 
         this.newuser = document.querySelector(".new-user");
         this.newuser.innerHTML = t('no_account');
-        this.newuser.addEventListener('click', () => shell.openExternal(newuserurl));
+        this.newuser.addEventListener('click', () => {
+            if (window.electronAPI && window.electronAPI.openExternal) {
+                window.electronAPI.openExternal(newuserurl);
+            } else if (typeof require !== 'undefined') {
+                const { shell } = require('electron');
+                shell.openExternal(newuserurl);
+            }
+        });
 
         this.passwordreset = document.querySelector(".password-reset");
         this.passwordreset.innerHTML = t('forgot_password');
-        this.passwordreset.addEventListener('click', () => shell.openExternal(passwordreseturl));
+        this.passwordreset.addEventListener('click', () => {
+            if (window.electronAPI && window.electronAPI.openExternal) {
+                window.electronAPI.openExternal(passwordreseturl);
+            } else if (typeof require !== 'undefined') {
+                const { shell } = require('electron');
+                shell.openExternal(passwordreseturl);
+            }
+        });
     }
 
     setupEventListeners(elements, azauth) {
