@@ -1,12 +1,12 @@
 {
     "name": "Hoperia",
     "preductname": "HoperiaLauncher",
-    "version": "3.3.0",
+    "version": "1.0.0",
     "description": "Launcher officiel d'Hoperia",
     "main": "src/app.js",
     "author": "FanEnsemble1/Riptiaz/Boulldogo/Vexato/Luuxis",
-    "env": "azuriom",
-    "settings": "https://hoperia.fr",
+    "env": "panel",
+    "settings": "https://panel.hoperia.fr",
     "scripts": {
         "start": "cross-env-shell NODE_ENV=dev electron .",
         "build": "node build.js --obf=true --build=platform",
