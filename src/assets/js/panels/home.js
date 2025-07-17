@@ -136,7 +136,10 @@ class Home {
                 ...(Array.isArray(this.config.ignored) ? this.config.ignored : Object.values(this.config.ignored)),
                 "launcher_config",
             ],
-            
+            intelEnabledMac: process.platform === 'darwin' && process.arch === 'arm64',
+            downloadFileMultiple: 30,
+            JVM_ARGS: [],
+            GAME_ARGS: [],
             java: this.config.java,
             memory: {
                 min: `${ram.ramMin * 1024}M`,
